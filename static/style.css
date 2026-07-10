@@ -11,7 +11,7 @@ body {
 }
 
 .main-container {
-    width: 1200px;
+    width: 1900px;
     display: flex;
     gap: 30px;
     align-items: flex-start;

@@ -107,7 +107,7 @@ function setLoading(isLoading, type) {
             stageIndex = (stageIndex + 1) % stages.length;
             const textEl = document.getElementById("loading-text");
             if(textEl) textEl.innerText = stages[stageIndex];
-        }, 2000);
+        }, 5000);
     } else if (!isLoading && targetBtn) {
         clearInterval(loadingInterval);
         targetBtn.innerHTML = `<span class="btn-text">${targetBtn.dataset.originalText}</span>`;
