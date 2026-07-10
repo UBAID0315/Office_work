@@ -84,6 +84,9 @@ function chooseFile(type){
     // For proposal, you can add a similar condition if needed
 }
 
+let loadingInterval;
+const stages = ["Uploading document...", "Analyzing structure...", "Extracting fields...", "Finalizing..."];
+
 function setLoading(isLoading, type) {
     const buttons = document.querySelectorAll("button");
     const targetBtn = document.getElementById(`btn-${type}`);
@@ -96,8 +99,17 @@ function setLoading(isLoading, type) {
         const textSpan = targetBtn.querySelector(".btn-text");
         const originalText = textSpan.innerText;
         targetBtn.dataset.originalText = originalText;
-        targetBtn.innerHTML = `<div class="loader"></div> Processing...`;
+        
+        let stageIndex = 0;
+        targetBtn.innerHTML = `<div class="loader"></div> <span id="loading-text">${stages[0]}</span>`;
+        
+        loadingInterval = setInterval(() => {
+            stageIndex = (stageIndex + 1) % stages.length;
+            const textEl = document.getElementById("loading-text");
+            if(textEl) textEl.innerText = stages[stageIndex];
+        }, 2000);
     } else if (!isLoading && targetBtn) {
+        clearInterval(loadingInterval);
         targetBtn.innerHTML = `<span class="btn-text">${targetBtn.dataset.originalText}</span>`;
     }
 }
@@ -169,9 +181,8 @@ function handleUpload(event) {
         setLoading(false, currentForm);
         
         if (result.status === 200 && result.body.status === "success") {
-            statusDiv.style.color = "#047857"; // Green
-            statusDiv.innerHTML = `<strong>Success!</strong><br><br>` + 
-                JSON.stringify(result.body.data, null, 2);
+            statusDiv.style.color = "#111827"; 
+            statusDiv.innerHTML = `<strong>Success!</strong><br><br>` + renderFormTable(result.body.data);
         } else {
             statusDiv.style.color = "#b91c1c"; // Red
             statusDiv.innerHTML = `<strong>Error!</strong><br><br>${result.body.message || result.body.error || "Upload failed"}`;
@@ -199,6 +210,69 @@ document.addEventListener('contextmenu', function(e) {
 document.getElementById("fileInputNaf").addEventListener("change", handleUpload);
 document.getElementById("fileInputCnic").addEventListener("change", handleUpload);
 
+function renderFormTable(data) {
+    let html = `<table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Field Name</th>
+                      <th>Extracted Value</th>
+                      <th>Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+
+    function formatName(key) {
+        return key.toString().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    function processNode(node, prefix = "") {
+        if (Array.isArray(node)) {
+            node.forEach((item, index) => {
+                processNode(item, `${prefix}[${index + 1}] `);
+            });
+        } else if (typeof node === 'object' && node !== null) {
+            // Check if it is our custom value/confidence object
+            if ('value' in node || 'confidence' in node || 'selected' in node) {
+                let val = node.value !== undefined ? node.value : node.selected;
+                let conf = node.confidence;
+                let confStr = conf !== null && conf !== undefined ? (conf * 100).toFixed(1) + '%' : 'N/A';
+                
+                let confColor = '#047857'; // Green
+                if (conf !== null && conf !== undefined) {
+                    if (conf < 0.8) confColor = '#d97706'; // Orange
+                    if (conf < 0.5) confColor = '#dc2626'; // Red
+                }
+                
+                html += `<tr>
+                           <td><strong>${prefix}</strong></td>
+                           <td>${val !== null && val !== '' ? val : '<em>Empty</em>'}</td>
+                           <td style="color:${confColor}; font-weight:bold">${confStr}</td>
+                         </tr>`;
+            } else {
+                // Nested object recursion
+                for (const [key, val] of Object.entries(node)) {
+                    if (key === 'form_title') continue; // Skip title if present
+                    
+                    let newPrefix = prefix ? `${prefix} - ${formatName(key)}` : formatName(key);
+                    
+                    if (typeof val !== 'object' || val === null) {
+                        html += `<tr>
+                                   <td><strong>${newPrefix}</strong></td>
+                                   <td>${val !== null && val !== '' ? val : '<em>Empty</em>'}</td>
+                                   <td>N/A</td>
+                                 </tr>`;
+                    } else {
+                        processNode(val, newPrefix);
+                    }
+                }
+            }
+        }
+    }
+    
+    processNode(data);
+    html += `</tbody></table>`;
+    return html;
+}
 </script>
 
 </body>

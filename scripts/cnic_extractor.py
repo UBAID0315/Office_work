@@ -98,7 +98,10 @@ def extract_cnic_fields(file_input, endpoint, key):
                 for doc_idx, document in enumerate(result.documents):
                     document_data = {}
                     for field_name, field in document.fields.items():
-                        document_data[field_name] = field.content
+                        document_data[field_name] = {
+                            "value": field.content,
+                            "confidence": getattr(field, "confidence", None)
+                        }
                     output_documents.append(document_data)
                 return output_documents
 
