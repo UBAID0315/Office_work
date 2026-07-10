@@ -74,7 +74,7 @@ def extract_cnic_fields(file_input, endpoint, key):
         raise ValueError("Invalid file input type.")
 
     try:
-        # This function is calling classfier to identify the document type and confidence
+        # This function is calling classifier to identify the document type and confidence
         doc_type, confidence = identify_cnic(pdf_to_process, endpoint, key)
 
         if not doc_type:
