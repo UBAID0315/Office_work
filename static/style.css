@@ -1,0 +1,145 @@
+body {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #f8fafc, #eef4ff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0;
+    margin: 0;
+}
+
+.main-container {
+    width: 1200px;
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.left-panel {
+    width: 420px;
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 15px 40px rgba(15,23,42,0.08);
+    text-align: center;
+}
+
+.right-panel {
+    flex: 1;
+    background: white;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(15,23,42,0.08);
+    min-height: 620px;
+    animation: slideIn .3s ease;
+}
+
+.hidden {
+    display: none;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.result-header h2 {
+    color: #0f172a;
+    font-size: 24px;
+}
+
+.close-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    line-height: 1;
+    font-size: 28px;
+}
+
+.close-btn:hover {
+    background: #ef4444;
+    color: white;
+    transform: rotate(90deg);
+}
+
+#status {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 500px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-y: auto;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 1000px) {
+
+    .main-container {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .left-panel {
+        width: 100%;
+    }
+
+    .right-panel {
+        width: 100%;
+    }
+}
+
+.logo{
+    width:90px;
+    margin-bottom:20px;
+}
+
+h1{
+    color:#0f172a;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#64748b;
+    margin-bottom:25px;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    margin-top:14px;
+    border:none;
+    border-radius:14px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+#btn-naf{background:linear-gradient(135deg,#2563eb,#1d4ed8);}
+#btn-proposal{background:linear-gradient(135deg,#0f766e,#0d9488);}
+#btn-cnic{background:linear-gradient(135deg,#7c3aed,#6d28d9);}

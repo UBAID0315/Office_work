@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Form Upload</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="main-container">
+
+    <div class="left-panel">
+
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}"
+             alt="Logo"
+             class="logo">
+
+        <h1>Automate your forms</h1>
+
+        <p class="subtitle">
+            AI-powered document classification and extraction.
+        </p>
+
+        <button id="btn-naf" onclick="chooseFile('naf')">
+            <span class="btn-text">Upload NAF Form (PDF)</span>
+        </button>
+
+        <button id="btn-proposal" onclick="chooseFile('proposal')">
+            <span class="btn-text">Upload Insurance / Takaful Form (PDF)</span>
+        </button>
+
+        <button id="btn-cnic" onclick="chooseFile('cnic')">
+            <span class="btn-text">
+                Upload your CNIC (PDF or Images)
+            </span>
+        </button>
+
+    </div>
+
+    <div class="right-panel hidden" id="resultPanel">
+
+        <div class="result-header">
+            <h2>Results</h2>
+
+            <button class="close-btn" onclick="closeResults()">
+                &times;
+            </button>
+        </div>
+
+        <div id="status">
+            Upload a document to begin processing.
+        </div>
+
+    </div>
+
+</div>
+
+<input type="file" id="fileInputNaf" accept=".pdf" hidden>
+
+<input type="file"
+       id="fileInputCnic"
+       accept=".pdf,image/png,image/jpeg,image/jpg"
+       multiple
+       hidden>
+
+<script>
+
+let currentForm = "";
+
+function chooseFile(type){
+    currentForm = type;
+    if (type === 'cnic') {
+        document.getElementById("fileInputCnic").click();
+    } if (type === 'naf') {
+        document.getElementById("fileInputNaf").click();
+    }
+    if (type === 'proposal') {
+        alert("Coming Soon!")
+        // document.getElementById("fileInputNaf").click();
+    }
+    // For proposal, you can add a similar condition if needed
+}
+
+function setLoading(isLoading, type) {
+    const buttons = document.querySelectorAll("button");
+    const targetBtn = document.getElementById(`btn-${type}`);
+    
+    buttons.forEach(btn => {
+        btn.disabled = isLoading;
+    });
+
+    if (isLoading && targetBtn) {
+        const textSpan = targetBtn.querySelector(".btn-text");
+        const originalText = textSpan.innerText;
+        targetBtn.dataset.originalText = originalText;
+        targetBtn.innerHTML = `<div class="loader"></div> Processing...`;
+    } else if (!isLoading && targetBtn) {
+        targetBtn.innerHTML = `<span class="btn-text">${targetBtn.dataset.originalText}</span>`;
+    }
+}
+
+function showResults() {
+    document.getElementById("resultPanel")
+        .classList.remove("hidden");
+}
+
+function closeResults() {
+    document.getElementById("resultPanel")
+        .classList.add("hidden");
+}
+
+function handleUpload(event) {
+    const files = event.target.files;
+
+    if(files.length === 0) return;
+
+    const data = new FormData();
+    const statusDiv = document.getElementById("status");
+    
+    if (currentForm === "cnic") {
+        if (files.length === 1) {
+            if (!files[0].name.toLowerCase().endsWith(".pdf")) {
+                alert("If uploading a single file for CNIC, it must be a PDF.");
+                event.target.value = '';
+                return;
+            }
+            data.append("pdf", files[0]);
+            statusDiv.innerHTML = `<strong>Status:</strong> Uploading and processing single PDF...`;
+        } else if (files.length === 2) {
+            const isPdf = files[0].name.toLowerCase().endsWith(".pdf") || files[1].name.toLowerCase().endsWith(".pdf");
+            if (isPdf) {
+                alert("If uploading two files, both must be images (Front and Back).");
+                event.target.value = '';
+                return;
+            }
+            data.append("front_image", files[0]);
+            data.append("back_image", files[1]);
+            statusDiv.innerHTML = `<strong>Status:</strong> Uploading and processing CNIC images...`;
+        } else {
+            alert("Please upload either a single PDF, or exactly two images (Front and Back side of CNIC).");
+            event.target.value = '';
+            return;
+        }
+    } else {
+        const file = files[0];
+        if (!file.name.toLowerCase().endsWith(".pdf")) {
+            alert("Please select a PDF file.");
+            event.target.value = '';
+            return;
+        }
+        data.append("pdf", file);
+        statusDiv.innerHTML = `<strong>Status:</strong> Uploading and processing ${file.name}...`;
+    }
+
+    showResults();
+    statusDiv.style.color = "#374151";
+
+    setLoading(true, currentForm);
+
+    fetch("/upload/" + currentForm,{
+        method:"POST",
+        body:data
+    })
+    .then(response => response.json().then(data => ({status: response.status, body: data})))
+    .then(result => {
+        setLoading(false, currentForm);
+        
+        if (result.status === 200 && result.body.status === "success") {
+            statusDiv.style.color = "#047857"; // Green
+            statusDiv.innerHTML = `<strong>Success!</strong><br><br>` + 
+                JSON.stringify(result.body.data, null, 2);
+        } else {
+            statusDiv.style.color = "#b91c1c"; // Red
+            statusDiv.innerHTML = `<strong>Error!</strong><br><br>${result.body.message || result.body.error || "Upload failed"}`;
+        }
+    })
+    .catch(error => {
+        setLoading(false, currentForm);
+        statusDiv.style.color = "#b91c1c";
+
+        if (error.response && error.response.status === 413) {
+            statusDiv.innerHTML = `<strong>Error!</strong><br><br>File exceeds maximum upload size.`;
+        } else {
+            statusDiv.innerHTML = `<strong>Error!</strong><br><br>Network error occurred.`;
+        }
+    });
+    
+    event.target.value = '';
+
+    
+}
+
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+document.getElementById("fileInputNaf").addEventListener("change", handleUpload);
+document.getElementById("fileInputCnic").addEventListener("change", handleUpload);
+
+</script>
+
+</body>
+</html>
