@@ -307,10 +307,24 @@ function renderFieldGroup(obj) {
             } else if ('selected' in field) {
                 rows += fieldRow(label, field.selected, field.confidence);
             } else if (Array.isArray(field)) {
-                // Nested array inside a section — skip or flatten
+                // Nested array inside a section — expand each item into proper rows
+                if (field.length > 1) {
+                    rows += `<tr class="sub-group-header"><td colspan="3"><strong>${label}</strong></td></tr>`;
+                }
                 field.forEach((item, i) => {
-                    const subLabel = `${label} [${i + 1}]`;
-                    rows += fieldRow(subLabel, JSON.stringify(item), null);
+                    if (field.length > 1) {
+                        rows += `<tr class="sub-group-header"><td colspan="3" style="padding-left:24px; color:#6366f1;">Entry ${i + 1}</td></tr>`;
+                    }
+                    if (typeof item === 'object' && item !== null) {
+                        for (const [sk, sv] of Object.entries(item)) {
+                            if (sv && typeof sv === 'object' && ('value' in sv || 'selected' in sv || 'confidence' in sv)) {
+                                let v = sv.value !== undefined ? sv.value : sv.selected;
+                                rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, v, sv.confidence);
+                            } else if (sv === null || typeof sv !== 'object') {
+                                rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, sv, null);
+                            }
+                        }
+                    }
                 });
             } else {
                 // Deeper nested — recurse inline

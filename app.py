@@ -117,6 +117,16 @@ def upload(form_type):
             front = request.files.get("front_image")
             back = request.files.get("back_image")
 
+            if not front or not front.filename:
+                return jsonify({
+                    "error": "Front image is required."
+                }), 400
+            
+            if not back or not back.filename:
+                return jsonify({
+                    "error": "Back image is required."
+                }), 400
+                
             if (
                 not front or not front.filename or
                 not back or not back.filename

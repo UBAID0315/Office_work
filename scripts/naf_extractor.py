@@ -354,6 +354,7 @@ def extract_with_azure(pdf_path, endpoint, key, model_ids):
 def extract_naf_fields(pdf_path, endpoint, key, model_ids):
 
     try:
+        # This function is calling classfier to identify the document type and confidence
         verified_naf = identify_naf(pdf_path, endpoint, key)
         doc_type, confidence = verified_naf
         
