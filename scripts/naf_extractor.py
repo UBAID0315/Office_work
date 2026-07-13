@@ -59,6 +59,11 @@ def val(node):
 def clean(text):
     if not isinstance(text, str):
         return text
+    
+    import re
+    # Remove leading standalone numbers (e.g. "17 ", "17. ")
+    text = re.sub(r'^\d+[\s\.]+', '', text)
+    
     parts = text.replace("\n", " ").split()
     joined = " ".join(parts).strip()
 

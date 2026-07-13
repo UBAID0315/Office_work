@@ -1,243 +1,300 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <title>10Pearls Extractor</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" type="image/logo" href="{{ url_for('static', filename='images/logo.jpg') }}">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="icon"
+      type="image/logo"
+      href="{{ url_for('static', filename='images/logo.jpg') }}"
+    />
+  </head>
 
-<body>
-
-<div class="main-container">
-
-    <div class="left-panel">
-
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}"
-             alt="Logo"
-             class="logo">
+  <body>
+    <div class="main-container">
+      <div class="left-panel">
+        <img
+          src="{{ url_for('static', filename='images/logo.jpg') }}"
+          alt="Logo"
+          class="logo"
+        />
 
         <h1>Automate your forms</h1>
 
         <p class="subtitle">
-            AI-powered document classification and extraction.
+          AI-powered document classification and extraction.
         </p>
 
         <button id="btn-naf" onclick="chooseFile('naf')">
-            <span class="btn-text">Upload NAF Form (PDF)</span>
+          <span class="btn-text">Upload NAF Form (PDF)</span>
         </button>
 
         <button id="btn-proposal" onclick="chooseFile('proposal')">
-            <span class="btn-text">Upload Insurance / Takaful Form (PDF)</span>
+          <span class="btn-text">Upload Insurance / Takaful Form (PDF)</span>
         </button>
 
         <button id="btn-cnic" onclick="chooseFile('cnic')">
-            <span class="btn-text">Upload your CNIC (PDF or Images)</span>
+          <span class="btn-text">Upload your CNIC (PDF or Images)</span>
         </button>
+      </div>
 
-    </div>
-
-    <div class="right-panel hidden" id="resultPanel">
-
+      <div class="right-panel hidden" id="resultPanel">
         <div class="result-header">
-            <div class="result-title">
-                <div class="result-icon" id="resultIcon">✦</div>
-                <h2 id="resultTitle">Extraction Results</h2>
-            </div>
-            <button class="close-btn" onclick="closeResults()" title="Close">
-                &times;
-            </button>
+          <div class="result-title">
+            <div class="result-icon" id="resultIcon">✦</div>
+            <h2 id="resultTitle">Extraction Results</h2>
+          </div>
+          <button class="close-btn" onclick="closeResults()" title="Close">
+            &times;
+          </button>
         </div>
 
-        <div id="status">
-            Upload a document to begin processing.
-        </div>
-
+        <div id="status">Upload a document to begin processing.</div>
+      </div>
     </div>
 
-</div>
+    <input type="file" id="fileInputNaf" accept=".pdf" hidden />
 
-<input type="file" id="fileInputNaf" accept=".pdf" hidden>
+    <input
+      type="file"
+      id="fileInputCnic"
+      accept=".pdf,image/png,image/jpeg,image/jpg"
+      multiple
+      hidden
+    />
 
-<input type="file"
-       id="fileInputCnic"
-       accept=".pdf,image/png,image/jpeg,image/jpg"
-       multiple
-       hidden>
+    <script>
+      let currentForm = "";
 
-<script>
+      function chooseFile(type) {
+        currentForm = type;
+        if (type === "cnic") {
+          document.getElementById("fileInputCnic").click();
+        }
+        if (type === "naf") {
+          document.getElementById("fileInputNaf").click();
+        }
+        if (type === "proposal") {
+          alert("Coming Soon!");
+        }
+      }
 
-let currentForm = "";
+      // button loading animation
 
-function chooseFile(type){
-    currentForm = type;
-    if (type === 'cnic') {
-        document.getElementById("fileInputCnic").click();
-    } if (type === 'naf') {
-        document.getElementById("fileInputNaf").click();
-    }
-    if (type === 'proposal') {
-        alert("Coming Soon!")
-    }
-}
+      function setLoading(isLoading, type) {
+        const buttons = document.querySelectorAll("button");
+        const targetBtn = document.getElementById(`btn-${type}`);
 
-let loadingInterval;
-const stages = ["Uploading document...", "Analyzing structure...", "Extracting fields...", "Finalizing..."];
+        buttons.forEach((btn) => {
+          btn.disabled = isLoading;
+        });
 
-function setLoading(isLoading, type) {
-    const buttons = document.querySelectorAll("button");
-    const targetBtn = document.getElementById(`btn-${type}`);
-    
-    buttons.forEach(btn => {
-        btn.disabled = isLoading;
-    });
+        if (isLoading && targetBtn) {
+          const textSpan = targetBtn.querySelector(".btn-text");
+          const originalText = textSpan.innerText;
+          targetBtn.dataset.originalText = originalText;
 
-    if (isLoading && targetBtn) {
-        const textSpan = targetBtn.querySelector(".btn-text");
-        const originalText = textSpan.innerText;
-        targetBtn.dataset.originalText = originalText;
-        
-        let stageIndex = 0;
-        targetBtn.innerHTML = `<div class="loader"></div> <span id="loading-text">${stages[0]}</span>`;
-        
-        loadingInterval = setInterval(() => {
-            stageIndex = (stageIndex + 1) % stages.length;
-            const textEl = document.getElementById("loading-text");
-            if(textEl) textEl.innerText = stages[stageIndex];
-        }, 2000);
-    } else if (!isLoading && targetBtn) {
-        clearInterval(loadingInterval);
-        targetBtn.innerHTML = `<span class="btn-text">${targetBtn.dataset.originalText}</span>`;
-    }
-}
+          targetBtn.innerHTML = `<div class="loader"></div> <span id="loading-text">Uploading document...</span>`;
+        } else if (!isLoading && targetBtn) {
+          targetBtn.innerHTML = `<span class="btn-text">${targetBtn.dataset.originalText}</span>`;
+        }
+      }
 
-function showResults() {
-    document.getElementById("resultPanel").classList.remove("hidden");
-}
+      function showResults() {
+        document.getElementById("resultPanel").classList.remove("hidden");
+      }
 
-function closeResults() {
-    document.getElementById("resultPanel").classList.add("hidden");
-}
+      function closeResults() {
+        document.getElementById("resultPanel").classList.add("hidden");
+      }
 
-function handleUpload(event) {
-    const files = event.target.files;
+      function handleUpload(event) {
+        const files = event.target.files;
 
-    if(files.length === 0) return;
+        if (files.length === 0) return;
 
-    const data = new FormData();
-    const statusDiv = document.getElementById("status");
-    
-    if (currentForm === "cnic") {
-        if (files.length === 1) {
+        const data = new FormData();
+        const statusDiv = document.getElementById("status");
+
+        if (currentForm === "cnic") {
+          if (files.length === 1) {
             if (!files[0].name.toLowerCase().endsWith(".pdf")) {
-                alert("If uploading a single file for CNIC, it must be a PDF.");
-                event.target.value = '';
-                return;
+              alert("If uploading a single file for CNIC, it must be a PDF.");
+              event.target.value = "";
+              return;
             }
             data.append("pdf", files[0]);
-        } else if (files.length === 2) {
-            const isPdf = files[0].name.toLowerCase().endsWith(".pdf") || files[1].name.toLowerCase().endsWith(".pdf");
+          } else if (files.length === 2) {
+            const isPdf =
+              files[0].name.toLowerCase().endsWith(".pdf") ||
+              files[1].name.toLowerCase().endsWith(".pdf");
             if (isPdf) {
-                alert("If uploading two files, both must be images (Front and Back).");
-                event.target.value = '';
-                return;
+              alert(
+                "If uploading two files, both must be images (Front and Back).",
+              );
+              event.target.value = "";
+              return;
             }
             data.append("front_image", files[0]);
             data.append("back_image", files[1]);
+          } else {
+            alert(
+              "Please upload either a single PDF, or exactly two images (Front and Back side of CNIC).",
+            );
+            event.target.value = "";
+            return;
+          }
         } else {
-            alert("Please upload either a single PDF, or exactly two images (Front and Back side of CNIC).");
-            event.target.value = '';
-            return;
-        }
-    } else {
-        const file = files[0];
-        if (!file.name.toLowerCase().endsWith(".pdf")) {
+          const file = files[0];
+          if (!file.name.toLowerCase().endsWith(".pdf")) {
             alert("Please select a PDF file.");
-            event.target.value = '';
+            event.target.value = "";
             return;
+          }
+          data.append("pdf", file);
         }
-        data.append("pdf", file);
-    }
 
-    showResults();
-    statusDiv.style.color = "#374151";
-    statusDiv.innerHTML = `<div class="processing-state">
+        showResults();
+        statusDiv.style.color = "#374151";
+        statusDiv.innerHTML = `<div class="processing-state">
         <div class="spinner-large"></div>
         <p class="processing-text" id="proc-text">Uploading document...</p>
     </div>`;
 
-    // Update result header
-    const formLabels = { cnic: "CNIC", naf: "NAF Form", proposal: "Insurance Form" };
-    document.getElementById("resultTitle").innerText = `${formLabels[currentForm] || "Document"} Extraction Results`;
+        // Update result header
+        const formLabels = {
+          cnic: "CNIC",
+          naf: "NAF Form",
+          proposal: "Insurance Form",
+        };
+        document.getElementById("resultTitle").innerText =
+          `${formLabels[currentForm] || "Document"} Extraction Results`;
 
-    setLoading(true, currentForm);
+        setLoading(true, currentForm);
 
-    fetch("/upload/" + currentForm,{
-        method:"POST",
-        body:data
-    })
-    .then(response => response.json().then(data => ({status: response.status, body: data})))
-    .then(result => {
-        setLoading(false, currentForm);
-        
-        if (result.status === 200 && result.body.status === "success") {
-            statusDiv.style.color = "#111827";
-            statusDiv.innerHTML = renderFormResults(result.body.data, currentForm);
-        } else {
+        async function uploadAndProcess() {
+          try {
+            const response = await fetch("/upload/" + currentForm, {
+              method: "POST",
+              body: data,
+            });
+
+            if (!response.ok) {
+              throw new Error("HTTP error " + response.status);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+
+            const readStream = async () => {
+              const { done, value } = await reader.read();
+              if (done) return;
+
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop(); // Keep last incomplete line in buffer
+
+              for (const line of lines) {
+                if (line.trim()) {
+                  try {
+                    const res = JSON.parse(line);
+                    if (res.status === "progress") {
+                      // Update button loading text
+                      const loadingTextEl =
+                        document.getElementById("loading-text");
+                      if (loadingTextEl) {
+                        loadingTextEl.innerText = res.message;
+                      }
+                      // Update result panel processing text
+                      const procTextEl = document.getElementById("proc-text");
+                      if (procTextEl) {
+                        procTextEl.innerText = res.message;
+                      }
+                    } else if (res.status === "success") {
+                      setLoading(false, currentForm);
+                      statusDiv.style.color = "#111827";
+                      statusDiv.innerHTML = renderFormResults(
+                        res.data,
+                        currentForm,
+                      );
+                    } else if (res.status === "error") {
+                      setLoading(false, currentForm);
+                      statusDiv.style.color = "#b91c1c";
+                      statusDiv.innerHTML = `<div class="error-state">
+                                    <div class="error-icon">✕</div>
+                                    <p class="error-msg">${res.message || "Extraction failed"}</p>
+                                </div>`;
+                    }
+                  } catch (e) {
+                    console.error("Failed to parse stream line:", e);
+                  }
+                }
+              }
+              await readStream();
+            };
+            await readStream();
+          } catch (error) {
+            console.error("Error during upload:", error);
+            setLoading(false, currentForm);
             statusDiv.style.color = "#b91c1c";
             statusDiv.innerHTML = `<div class="error-state">
                 <div class="error-icon">✕</div>
-                <p class="error-msg">${result.body.message || result.body.error || "Upload failed"}</p>
+                <p class="error-msg">A network error occurred. Please try again.</p>
             </div>`;
+          } finally {
+            event.target.value = "";
+          }
         }
-    })
-    .catch(error => {
-        setLoading(false, currentForm);
-        statusDiv.style.color = "#b91c1c";
-        statusDiv.innerHTML = `<div class="error-state">
-            <div class="error-icon">✕</div>
-            <p class="error-msg">${(error.response && error.response.status === 413) ? "File exceeds maximum upload size (10 MB)." : "A network error occurred. Please try again."}</p>
-        </div>`;
-    });
-    
-    event.target.value = '';
-}
+        uploadAndProcess();
+      }
 
-document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
-document.getElementById("fileInputNaf").addEventListener("change", handleUpload);
-document.getElementById("fileInputCnic").addEventListener("change", handleUpload);
+      // document.addEventListener('contextmenu', function(e) {
+      //   e.preventDefault();
+      // });
+      document
+        .getElementById("fileInputNaf")
+        .addEventListener("change", handleUpload);
+      document
+        .getElementById("fileInputCnic")
+        .addEventListener("change", handleUpload);
 
-// ─── Rendering Engine ─────────────────────────────────────────────────────────
+      // ─── Rendering Engine ─────────────────────────────────────────────────────────
 
-function renderFormResults(data, formType) {
-    // CNIC returns an array of flat document objects
-    if (Array.isArray(data)) {
-        // Unwrap single-item array (CNIC case) — no index prefix
-        let html = '';
-        data.forEach((doc, idx) => {
+      function renderFormResults(data, formType) {
+        // CNIC returns an array of flat document objects
+        if (Array.isArray(data)) {
+          // Unwrap single-item array (CNIC case) — no index prefix
+          let html = "";
+          data.forEach((doc, idx) => {
             if (data.length > 1) {
-                html += `<div class="section-header">Document ${idx + 1}</div>`;
+              html += `<div class="section-header">Document ${idx + 1}</div>`;
             }
             html += renderFlatFields(doc);
-        });
-        return html;
-    }
+          });
+          return html;
+        }
 
-    // NAF / complex nested dict — render with section cards
-    return renderSections(data);
-}
+        // NAF / complex nested dict — render with section cards
+        return renderSections(data);
+      }
 
-function renderFlatFields(doc) {
-    let rows = '';
-    for (const [key, field] of Object.entries(doc)) {
-        if (typeof field === 'object' && field !== null && ('value' in field || 'confidence' in field)) {
+      function renderFlatFields(doc) {
+        let rows = "";
+        for (const [key, field] of Object.entries(doc)) {
+          if (
+            typeof field === "object" &&
+            field !== null &&
+            ("value" in field || "confidence" in field)
+          ) {
             rows += fieldRow(formatName(key), field.value, field.confidence);
+          }
         }
-    }
-    return `<div class="result-card">
+        return `<div class="result-card">
                 <table class="result-table">
                     <thead>
                         <tr>
@@ -249,100 +306,158 @@ function renderFlatFields(doc) {
                     <tbody>${rows}</tbody>
                 </table>
             </div>`;
-}
+      }
 
-function renderSections(data) {
-    let html = '';
-    for (const [key, value] of Object.entries(data)) {
-        if (key === 'form_title') continue;
+      function renderSections(data) {
+        let html = "";
 
-        const sectionName = formatName(key);
+        if (data.form_title) {
+          html += `<div class="section-header" style="font-size: 14px; border-bottom: 2px solid #6366f1; margin-bottom: 20px; color: #0f172a; text-transform: none;">${data.form_title}</div>`;
+        }
 
-        if (Array.isArray(value)) {
-            // Table-like section (e.g., family_details, existing_plans)
-            if (value.length === 0) continue;
-            html += `<div class="section-header">${sectionName}</div>`;
-            value.forEach((item, idx) => {
-                if (value.length > 1) {
-                    html += `<div class="sub-section-label">Entry ${idx + 1}</div>`;
-                }
-                html += renderFieldGroup(item);
+        if (data.family_takaful_need_analysis_of) {
+          html += renderFieldGroup({
+            family_takaful_need_analysis_of:
+              data.family_takaful_need_analysis_of,
+          });
+        }
+
+        for (const [key, val] of Object.entries(data)) {
+          if (
+            key === "form_title" ||
+            key === "family_takaful_need_analysis_of"
+          ) {
+            continue;
+          }
+
+          const label = formatName(key);
+          html += `<div class="section-header">${label}</div>`;
+
+          if (Array.isArray(val)) {
+            val.forEach((item, idx) => {
+              html += `<div class="sub-section-label">Entry ${idx + 1}</div>`;
+              html += renderFieldGroup(item);
             });
-
-        } else if (typeof value === 'object' && value !== null) {
-            // Check if it's a leaf value/confidence node
-            if ('value' in value || 'confidence' in value || 'selected' in value) {
-                // Top-level leaf — render as a single-field card
-                html += `<div class="section-header">${sectionName}</div>`;
-                html += `<div class="result-card"><table class="result-table"><tbody>`;
-                let v = value.value !== undefined ? value.value : value.selected;
-                html += fieldRow(sectionName, v, value.confidence);
-                html += `</tbody></table></div>`;
+          } else if (typeof val === "object" && val !== null) {
+            if ("value" in val || "confidence" in val || "selected" in val) {
+              // It is a single field under the root, not a group section
+              html += renderFieldGroup({ [key]: val });
             } else {
-                // Nested section
-                html += `<div class="section-header">${sectionName}</div>`;
-                html += renderFieldGroup(value);
+              html += renderFieldGroup(val);
             }
-        } else {
-            // Primitive top-level value
-            html += `<div class="section-header">${sectionName}</div>`;
-            html += `<div class="result-card"><table class="result-table"><tbody>`;
-            html += fieldRow(sectionName, value, null);
-            html += `</tbody></table></div>`;
+          }
         }
-    }
-    return html;
-}
+        return html;
+      }
 
-function renderFieldGroup(obj) {
-    if (!obj || typeof obj !== 'object') return '';
-    let rows = '';
-    for (const [key, field] of Object.entries(obj)) {
-        const label = formatName(key);
+      function renderFieldGroup(obj) {
+        if (!obj || typeof obj !== "object") return "";
+        let rows = "";
+        for (const [key, field] of Object.entries(obj)) {
+          const label = formatName(key);
 
-        if (field === null || field === undefined) {
+          if (field === null || field === undefined) {
             rows += fieldRow(label, null, null);
-        } else if (typeof field === 'object') {
-            if ('value' in field || 'confidence' in field) {
-                rows += fieldRow(label, field.value, field.confidence);
-            } else if ('selected' in field) {
-                rows += fieldRow(label, field.selected, field.confidence);
+          } else if (typeof field === "object") {
+            if (field && "options" in field) {
+              const optsHtml = field.options
+                .map((opt) => {
+                  if (opt === field.selected) {
+                    return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#e0e7ff; border-radius:6px; font-weight:600; color:#2563eb;">✓ ${escapeHtml(opt)}</span>`;
+                  } else {
+                    return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#f1f5f9; border-radius:6px; color:#94a3b8;">☐ ${escapeHtml(opt)}</span>`;
+                  }
+                })
+                .join(" ");
+              rows += fieldRow(label, optsHtml, field.confidence, true);
+            } else if ("value" in field || "confidence" in field) {
+              rows += fieldRow(label, field.value, field.confidence);
             } else if (Array.isArray(field)) {
-                // Nested array inside a section — expand each item into proper rows
-                if (field.length > 1) {
-                    rows += `<tr class="sub-group-header"><td colspan="3"><strong>${label}</strong></td></tr>`;
-                }
-                field.forEach((item, i) => {
-                    if (field.length > 1) {
-                        rows += `<tr class="sub-group-header"><td colspan="3" style="padding-left:24px; color:#6366f1;">Entry ${i + 1}</td></tr>`;
-                    }
-                    if (typeof item === 'object' && item !== null) {
-                        for (const [sk, sv] of Object.entries(item)) {
-                            if (sv && typeof sv === 'object' && ('value' in sv || 'selected' in sv || 'confidence' in sv)) {
-                                let v = sv.value !== undefined ? sv.value : sv.selected;
-                                rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, v, sv.confidence);
-                            } else if (sv === null || typeof sv !== 'object') {
-                                rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, sv, null);
-                            }
-                        }
-                    }
-                });
-            } else {
-                // Deeper nested — recurse inline
+              // Nested array inside a section — expand each item into proper rows
+              if (field.length > 1) {
                 rows += `<tr class="sub-group-header"><td colspan="3"><strong>${label}</strong></td></tr>`;
-                for (const [sk, sv] of Object.entries(field)) {
-                    if (sv && typeof sv === 'object' && ('value' in sv || 'selected' in sv)) {
-                        let v = sv.value !== undefined ? sv.value : sv.selected;
-                        rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, v, sv.confidence);
-                    }
+              }
+              field.forEach((item, i) => {
+                if (field.length > 1) {
+                  rows += `<tr class="sub-group-header"><td colspan="3" style="padding-left:24px; color:#6366f1;">Entry ${i + 1}</td></tr>`;
                 }
+                if (typeof item === "object" && item !== null) {
+                  for (const [sk, sv] of Object.entries(item)) {
+                    if (sv && typeof sv === "object" && "options" in sv) {
+                      const optsHtml = sv.options
+                        .map((opt) => {
+                          if (opt === sv.selected) {
+                            return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#e0e7ff; border-radius:6px; font-weight:600; color:#2563eb;">✓ ${escapeHtml(opt)}</span>`;
+                          } else {
+                            return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#f1f5f9; border-radius:6px; color:#94a3b8;">☐ ${escapeHtml(opt)}</span>`;
+                          }
+                        })
+                        .join(" ");
+                      rows += fieldRow(
+                        `&nbsp;&nbsp;${formatName(sk)}`,
+                        optsHtml,
+                        sv.confidence,
+                        true,
+                      );
+                    } else if (
+                      sv &&
+                      typeof sv === "object" &&
+                      ("value" in sv || "confidence" in sv)
+                    ) {
+                      rows += fieldRow(
+                        `&nbsp;&nbsp;${formatName(sk)}`,
+                        sv.value,
+                        sv.confidence,
+                      );
+                    } else if (sv === null || typeof sv !== "object") {
+                      rows += fieldRow(
+                        `&nbsp;&nbsp;${formatName(sk)}`,
+                        sv,
+                        null,
+                      );
+                    }
+                  }
+                }
+              });
+            } else {
+              // Deeper nested — recurse inline
+              rows += `<tr class="sub-group-header"><td colspan="3"><strong>${label}</strong></td></tr>`;
+              for (const [sk, sv] of Object.entries(field)) {
+                if (sv && typeof sv === "object" && "options" in sv) {
+                  const optsHtml = sv.options
+                    .map((opt) => {
+                      if (opt === sv.selected) {
+                        return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#e0e7ff; border-radius:6px; font-weight:600; color:#2563eb;">✓ ${escapeHtml(opt)}</span>`;
+                      } else {
+                        return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#f1f5f9; border-radius:6px; color:#94a3b8;">☐ ${escapeHtml(opt)}</span>`;
+                      }
+                    })
+                    .join(" ");
+                  rows += fieldRow(
+                    `&nbsp;&nbsp;${formatName(sk)}`,
+                    optsHtml,
+                    sv.confidence,
+                    true,
+                  );
+                } else if (
+                  sv &&
+                  typeof sv === "object" &&
+                  ("value" in sv || "confidence" in sv)
+                ) {
+                  rows += fieldRow(
+                    `&nbsp;&nbsp;${formatName(sk)}`,
+                    sv.value,
+                    sv.confidence,
+                  );
+                }
+              }
             }
-        } else {
+          } else {
             rows += fieldRow(label, field, null);
+          }
         }
-    }
-    if (!rows) return '';
-    return `<div class="result-card">
+        if (!rows) return "";
+        return `<div class="result-card">
                 <table class="result-table">
                     <thead>
                         <tr>
@@ -354,37 +469,55 @@ function renderFieldGroup(obj) {
                     <tbody>${rows}</tbody>
                 </table>
             </div>`;
-}
+      }
 
-function fieldRow(label, value, confidence) {
-    let confHtml = '';
-    if (confidence !== null && confidence !== undefined) {
-        const pct = (confidence * 100).toFixed(1);
-        let cls = confidence >= 0.8 ? 'conf-high' : confidence >= 0.5 ? 'conf-med' : 'conf-low';
-        confHtml = `<span class="conf-badge ${cls}">${pct}%</span>`;
-    } else {
-        confHtml = `<span class="conf-badge conf-na">N/A</span>`;
-    }
+      function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return "";
+        return unsafe
+          .toString()
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
-    const displayVal = (value !== null && value !== undefined && value !== '')
-        ? value
-        : `<em class="empty-val">—</em>`;
+      function fieldRow(label, value, confidence, isHtml = false) {
+        let confHtml = "";
+        if (confidence !== null && confidence !== undefined) {
+          const pct = (confidence * 100).toFixed(1);
+          let cls =
+            confidence >= 0.8
+              ? "conf-high"
+              : confidence >= 0.5
+                ? "conf-med"
+                : "conf-low";
+          confHtml = `<span class="conf-badge ${cls}">${pct}%</span>`;
+        } else {
+          confHtml = `<span class="conf-badge conf-na">N/A</span>`;
+        }
 
-    return `<tr>
+        let displayVal = "";
+        if (value !== null && value !== undefined && value !== "") {
+          displayVal = isHtml ? value : escapeHtml(value);
+        } else {
+          displayVal = `<em class="empty-val">—</em>`;
+        }
+
+        return `<tr>
                 <td class="field-label">${label}</td>
                 <td class="field-value">${displayVal}</td>
                 <td class="field-conf">${confHtml}</td>
             </tr>`;
-}
+      }
 
-function formatName(key) {
-    return key.toString()
-        .replace(/^section_\d+_/, '')   // Remove section_1_, section_2_ prefixes
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, l => l.toUpperCase());
-}
-
-</script>
-
-</body>
+      function formatName(key) {
+        return key
+          .toString()
+          .replace(/^section_\d+_/, "") // Remove section_1_, section_2_ prefixes
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase());
+      }
+    </script>
+  </body>
 </html>

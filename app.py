@@ -1,20 +1,22 @@
 from scripts.cnic_extractor import extract_cnic_fields
-from scripts.naf_extractor import extract_naf_fields
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, Response
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 
 import os
 import uuid
+import json
 
 load_dotenv()
 
 app = Flask(__name__)
+app.json.sort_keys = False
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
@@ -95,85 +97,73 @@ def home():
 
 @app.route("/upload/<form_type>", methods=["POST"])
 def upload(form_type):
+    import time
+    import json
 
-    # ---------------- CNIC ----------------
+    # ── Read ALL request data here, inside request context ──────────────────
     if form_type == "cnic":
+        pdf_file      = request.files.get("pdf")
+        front_file    = request.files.get("front_image")
+        back_file     = request.files.get("back_image")
 
-        # PDF upload path
-        pdf = request.files.get("pdf")
-
-        if pdf and pdf.filename:
-
-            if not pdf.filename.lower().endswith(".pdf"):
-                return jsonify({
-                    "error": "Only PDF files are allowed."
-                }), 400
-
-            filepath = save_uploaded_file(pdf)
-            result = extract_fields(filepath, "cnic")
-
-        # Front/back image upload path
+        # Validate and save files immediately while request context is active
+        if pdf_file and pdf_file.filename:
+            if not pdf_file.filename.lower().endswith(".pdf"):
+                return jsonify({"status": "error", "message": "Only PDF files are allowed."}), 400
+            cnic_file_input = save_uploaded_file(pdf_file)
+        elif front_file and front_file.filename and back_file and back_file.filename:
+            front_path = save_uploaded_file(front_file)
+            back_path  = save_uploaded_file(back_file)
+            cnic_file_input = [front_path, back_path]
         else:
-            front = request.files.get("front_image")
-            back = request.files.get("back_image")
+            return jsonify({"status": "error", "message": "Upload either a PDF or both front and back images."}), 400
 
-            if not front or not front.filename:
-                return jsonify({
-                    "error": "Front image is required."
-                }), 400
-            
-            if not back or not back.filename:
-                return jsonify({
-                    "error": "Back image is required."
-                }), 400
-                
-            if (
-                not front or not front.filename or
-                not back or not back.filename
-            ):
-                return jsonify({
-                    "error": "Upload either a PDF or both front and back images."
-                }), 400
-
-            front_path = save_uploaded_file(front)
-            back_path = save_uploaded_file(back)
-
-            result = extract_fields(
-                [front_path, back_path],
-                "cnic"
-            )
-
-    # ---------------- NAF ----------------
     elif form_type == "naf":
-
-        pdf = request.files.get("pdf")
-
-        if not pdf or not pdf.filename:
-            return jsonify({
-                "error": "No PDF uploaded."
-            }), 400
-
-        if not pdf.filename.lower().endswith(".pdf"):
-            return jsonify({
-                "error": "Only PDF files are allowed."
-            }), 400
-
-        filepath = save_uploaded_file(pdf)
-
-        result = extract_fields(
-            filepath,
-            "naf"
-        )
+        pdf_file = request.files.get("pdf")
+        if not pdf_file or not pdf_file.filename:
+            return jsonify({"status": "error", "message": "No PDF uploaded."}), 400
+        if not pdf_file.filename.lower().endswith(".pdf"):
+            return jsonify({"status": "error", "message": "Only PDF files are allowed."}), 400
+        naf_filepath = save_uploaded_file(pdf_file)
 
     else:
-        return jsonify({
-            "error": f"Unsupported form type: {form_type}"
-        }), 400
+        return jsonify({"status": "error", "message": f"Unsupported form type: {form_type}"}), 400
+    # ────────────────────────────────────────────────────────────────────────
 
-    status_code = 200 if result["status"] == "success" else 500
+    def generate():
+        try:
+            # ---------------- CNIC ----------------
+            if form_type == "cnic":
+                yield json.dumps({"status": "progress", "message": "Analyzing structure..."}) + "\n"
+                result = extract_fields(cnic_file_input, "cnic")
+                if result.get("status") == "success":
+                    yield json.dumps({"status": "success", "data": result.get("data")}) + "\n"
+                else:
+                    yield json.dumps({"status": "error", "message": result.get("message", "Extraction failed")}) + "\n"
 
-    return jsonify(result), status_code
+            # ---------------- NAF ----------------
+            elif form_type == "naf":
+                yield json.dumps({"status": "progress", "message": "Analyzing structure..."}) + "\n"
+                
+                from scripts.naf_extractor import identify_naf, extract_with_azure, build, extract_naf_fields
+                verified_naf = identify_naf(naf_filepath, AZURE_ENDPOINT, AZURE_KEY)
+                doc_type, confidence = verified_naf
+                if doc_type != "naf_detected" and confidence < 0.85:
+                    raise ValueError("Facing difficulty in identifying NAF document (!Use clear image). Extraction aborted.")
+                
+                yield json.dumps({"status": "progress", "message": "Extracting fields..."}) + "\n"
+                data = extract_with_azure(naf_filepath, AZURE_ENDPOINT, AZURE_KEY, NAF_MODEL_IDS)
+                
+                yield json.dumps({"status": "progress", "message": "Finalizing..."}) + "\n"
+                result_data = build(data)
+                
+                yield json.dumps({"status": "success", "data": result_data}) + "\n"
+
+        except Exception as e:
+            yield json.dumps({"status": "error", "message": str(e)}) + "\n"
+
+    return Response(generate(), mimetype='application/x-ndjson')
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+    app.run(host='0.0.0.0', debug=True,port=int(os.getenv('PORT', 5000)))
