@@ -253,9 +253,9 @@
         uploadAndProcess();
       }
 
-      // document.addEventListener('contextmenu', function(e) {
-      //   e.preventDefault();
-      // });
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
       document
         .getElementById("fileInputNaf")
         .addEventListener("change", handleUpload);

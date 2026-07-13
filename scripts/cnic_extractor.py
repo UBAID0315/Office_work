@@ -94,17 +94,48 @@ def extract_cnic_fields(file_input, endpoint, key):
                     )
 
                 result = poller.result()
-                output_documents = []
-
-                for doc_idx, document in enumerate(result.documents):
-                    document_data = {}
-                    for field_name, field in document.fields.items():
-                        document_data[field_name] = {
-                            "value": field.content,
-                            "confidence": getattr(field, "confidence", None)
-                        }
-                    output_documents.append(document_data)
-                return output_documents
+                
+                field = result.documents[0].fields
+                
+                temp_doc = [{
+                    "Name": {
+                        "value": field.get("Name", {}).get("content"),
+                        "confidence": field.get("Name", {}).get("confidence")
+                    },
+                    "Father Name": {
+                        "value": field.get("Father-Name", {}).get("content"),
+                        "confidence": field.get("Father-Name", {}).get("confidence")
+                    },
+                    "CNIC Number": {
+                        "value": field.get("Cnic", {}).get("content"),
+                        "confidence": field.get("Cnic", {}).get("confidence")
+                    },
+                    "Date of Birth": {
+                        "value": field.get("DoB", {}).get("content"),
+                        "confidence": field.get("DoB", {}).get("confidence")
+                    },
+                    "Gender": {
+                        "value": field.get("Gender", {}).get("content"),
+                        "confidence": field.get("Gender", {}).get("confidence")
+                    },
+                    "Issue Date": {
+                        "value": field.get("Cnic_issue_date", {}).get("content"),
+                        "confidence": field.get("Cnic_issue_date", {}).get("confidence")
+                    },
+                    "Expiry Date": {
+                        "value": field.get("Cnic_expiry_date", {}).get("content"),
+                        "confidence": field.get("Cnic_expiry_date", {}).get("confidence")
+                    },
+                    "QR Code": {
+                        "value": field.get("qrcode_below", {}).get("content"),
+                        "confidence": field.get("qrcode_below", {}).get("confidence")
+                    },
+                    "CLI": {
+                        "value": field.get("secret_code", {}).get("content"),
+                        "confidence": field.get("secret_code", {}).get("confidence")
+                    }
+                }]
+                return temp_doc
 
             except Exception as e:
                 raise RuntimeError(f"Azure extraction failed: {str(e)}")

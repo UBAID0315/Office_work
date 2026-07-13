@@ -136,6 +136,8 @@ def upload(form_type):
             if form_type == "cnic":
                 yield json.dumps({"status": "progress", "message": "Analyzing structure..."}) + "\n"
                 result = extract_fields(cnic_file_input, "cnic")
+                yield json.dumps({"status": "success", "data": result.get("data")}) + "\n"
+                
                 if result.get("status") == "success":
                     yield json.dumps({"status": "success", "data": result.get("data")}) + "\n"
                 else:
