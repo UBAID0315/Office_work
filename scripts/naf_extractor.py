@@ -61,8 +61,10 @@ def clean(text):
         return text
     
     import re
-    # Remove leading standalone numbers (e.g. "17 ", "17. ")
-    text = re.sub(r'^\d+[\s\.]+', '', text)
+    # Remove leading section-number artifacts only when followed by a full sentence
+    # i.e. uppercase word + space + more content: "17 We hereby certify..."
+    # Safe against: "20 years", "60 Year.", "0335 - 1342432", "10,000,000"
+    text = re.sub(r'^\d+[\s\.]+(?=[A-Z][a-z]+\s)', '', text)
     
     parts = text.replace("\n", " ").split()
     joined = " ".join(parts).strip()
@@ -195,11 +197,29 @@ def build(data):
     family = all_objects(data.get("Family_Details", {}))
     plans = all_objects(data.get("Family_plans", {}))
 
+    # Resolve ftn_name and basic name with mutual fallback
+    ftn_name_val  = val(data.get("ftn_name"))
+    basic_name_val = obj(basic, "name")
+
+    # If ftn_name is missing/null, copy value from basic name
+    if not ftn_name_val.get("value"):
+        ftn_name_val = {
+            "value": basic_name_val.get("value"),
+            "confidence": basic_name_val.get("confidence"),
+        }
+
+    # If basic name is missing/null, copy value from ftn_name
+    if not basic_name_val.get("value"):
+        basic_name_val = {
+            "value": ftn_name_val.get("value"),
+            "confidence": ftn_name_val.get("confidence"),
+        }
+
     form = {
         "form_title": "Adamjee Life Assurance Co. Ltd - Window Takaful Operations - Needs Analysis Form",
-        "family_takaful_need_analysis_of": val(data.get("ftn_name")),
+        "family_takaful_need_analysis_of": ftn_name_val,
         "section_1_basic_information": {
-            "name": obj(basic, "name"),
+            "name": basic_name_val,
             "address": obj(basic, "address"),
             "telephone": obj(basic, "telephone"),
             "email": obj(basic, "email"),
