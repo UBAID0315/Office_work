@@ -42,15 +42,20 @@
         </button>
       </div>
 
-      <div class="right-panel hidden" id="resultPanel">
+      <div class="right-panel " id="resultPanel">
         <div class="result-header">
           <div class="result-title">
             <div class="result-icon" id="resultIcon">✦</div>
             <h2 id="resultTitle">Extraction Results</h2>
           </div>
-          <button class="close-btn" onclick="closeResults()" title="Close">
-            &times;
-          </button>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="download-btn hidden" id="downloadBtn" onclick="downloadJSON()" title="Download JSON">
+              <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download" />
+            </button>
+            <button class="close-btn" onclick="closeResults()" title="Close">
+              &times;
+            </button>
+          </div>
         </div>
 
         <div id="status">Upload a document to begin processing.</div>
@@ -159,11 +164,12 @@
         }
 
         showResults();
+        document.getElementById("downloadBtn").classList.add("hidden");
         statusDiv.style.color = "#374151";
         statusDiv.innerHTML = `<div class="processing-state">
         <div class="spinner-large"></div>
-        <p class="processing-text" id="proc-text">Uploading document...</p>
-    </div>`;
+          <p class="processing-text" id="proc-text">Uploading document...</p>
+        </div>`;
 
         // Update result header
         const formLabels = {
@@ -218,6 +224,8 @@
                     } else if (res.status === "success") {
                       setLoading(false, currentForm);
                       statusDiv.style.color = "#111827";
+                      window.lastExtractedData = res.data;
+                      document.getElementById("downloadBtn").classList.remove("hidden");
                       statusDiv.innerHTML = renderFormResults(
                         res.data,
                         currentForm,
@@ -253,15 +261,44 @@
         uploadAndProcess();
       }
 
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-      });
+      // document.addEventListener('contextmenu', function(e) {
+      //   e.preventDefault();
+      // });
       document
         .getElementById("fileInputNaf")
         .addEventListener("change", handleUpload);
       document
         .getElementById("fileInputCnic")
         .addEventListener("change", handleUpload);
+
+      async function downloadJSON() {
+        if (!window.lastExtractedData) return;
+        try {
+          const response = await fetch('/download-json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(window.lastExtractedData)
+          });
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `extracted_${currentForm}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+          } else {
+            alert('Failed to download JSON from server.');
+          }
+        } catch (error) {
+          console.error('Error downloading JSON:', error);
+          alert('Error downloading JSON.');
+        }
+      }
 
       // ─── Rendering Engine ─────────────────────────────────────────────────────────
 

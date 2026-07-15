@@ -1,6 +1,6 @@
 from scripts.cnic_extractor import extract_cnic_fields
 
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, jsonify
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -165,6 +165,18 @@ def upload(form_type):
             yield json.dumps({"status": "error", "message": str(e)}) + "\n"
 
     return Response(generate(), mimetype='application/x-ndjson')
+
+@app.route("/download-json", methods=["POST"])
+def download_json():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    from flask import jsonify
+    response = jsonify(data)
+    response.headers["Content-Disposition"] = "attachment; filename=extracted_data.json"
+    response.headers["Content-Type"] = "application/json"
+    return response
 
 
 if __name__ == "__main__":

@@ -419,3 +419,28 @@ button:disabled {
     .field-label { width: 45%; }
     .field-value { width: 55%; }
 }
+
+
+.download-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    width: auto;
+    padding: 4px;
+    box-shadow: none;
+}
+
+.download-btn:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+    background: none;
+}
+
+.download-btn img {
+    width: 24px;
+    height: 24px;
+}
