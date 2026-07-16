@@ -2,6 +2,7 @@ from scripts.cnic_extractor import extract_cnic_fields
 
 from flask import Flask, render_template, request, Response, jsonify
 from dotenv import load_dotenv
+from database.connection import create_connection
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import RequestEntityTooLarge
 
@@ -47,52 +48,103 @@ def save_uploaded_file(file):
     return filepath
 
 
-def extract_fields(file_input, form_type):
-    print(f"\nProcessing {form_type}")
-
-    try:
-        if form_type == "cnic":
-            result = extract_cnic_fields(
-                file_input,
-                AZURE_ENDPOINT,
-                AZURE_KEY
-            )
-
-            return {
-                "status": "success",
-                "message": "CNIC processed successfully.",
-                "data": result
-            }
-
-        elif form_type == "naf":
-            result = extract_naf_fields(
-                file_input,
-                AZURE_ENDPOINT,
-                AZURE_KEY,
-                NAF_MODEL_IDS
-            )
-
-            return {
-                "status": "success",
-                "message": "NAF processed successfully.",
-                "data": result
-            }
-
-        return {
-            "status": "error",
-            "message": f"Unsupported form type: {form_type}"
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
-
 
 @app.route("/")
 def home():
     return render_template("index.html")
+
+# ── Key mapping: frontend display labels → database column names ──────────
+CNIC_KEY_MAP = {
+    "Name": "name",
+    "Father Name": "father_name",
+    "CNIC Number": "cnic",
+    "Date of Birth": "date_of_birth",
+    "Gender": "gender",
+    "Issue Date": "issue_date",
+    "Expiry Date": "expiry_date",
+    "QR Code": "qr_code",
+    "CLI": "cli",
+}
+
+@app.route("/save-to-db/<form_type>", methods=["POST"])
+def save_to_db(form_type):
+    connection = create_connection()
+    if not connection:
+        return jsonify({"status": "error", "message": "Failed to connect to the database."}), 500
+
+    cursor = connection.cursor()
+    raw_data = request.get_json()
+
+    if(raw_data is None):
+        return jsonify({"status": "error", "message": "No data provided."}), 400
+    
+    try:
+        if form_type == "cnic":
+
+            # CNIC extraction returns an array [{ ... }] — unwrap it
+            if isinstance(raw_data, list):
+                if len(raw_data) == 0:
+                    return jsonify({"status": "error", "message": "Empty CNIC data received."}), 400
+                raw_data = raw_data[0]
+
+            # Map display labels → DB columns and extract .value from each field
+            row = {}
+            for display_key, db_column in CNIC_KEY_MAP.items():
+                field = raw_data.get(display_key, {})
+                if isinstance(field, dict):
+                    row[db_column] = field.get("value")
+                else:
+                    row[db_column] = field  # fallback if value is already flat
+
+            # Get persistent count of existing CNIC records from the database
+            cursor.execute("SELECT COUNT(*) FROM documents WHERE document_type = 'CNIC'")
+            cnic_count = cursor.fetchone()[0]
+            doc_id = f"DOC_CNIC_{cnic_count + 1:04d}"
+
+            # Insert parent record
+            document_query = """
+                INSERT INTO documents (id, document_type, endpoint_url, extraction_status)
+                VALUES (%s, %s, %s, %s)
+            """
+            doc_values = (
+                doc_id,
+                'CNIC',
+                os.environ.get("AZURE_DI_ENDPOINT"),
+                'COMPLETED'
+            )
+            cursor.execute(document_query, doc_values)
+
+            # Map the generated document_id into the cnic row values
+            row["document_id"] = doc_id
+
+            columns = ", ".join(row.keys())
+            placeholders = ", ".join(["%s"] * len(row))
+            values = tuple(row.values())
+
+            query = f"INSERT INTO cnic_data ({columns}) VALUES ({placeholders})"
+            cursor.execute(query, values)
+            connection.commit()
+
+            return jsonify({"status": "success", "message": "CNIC data saved to database."}), 200
+
+        elif form_type == "naf":
+            if isinstance(raw_data, list):
+                if len(raw_data) == 0:
+                    return jsonify({"status": "error", "message": "Empty NAF data received."}), 400
+                raw_data = raw_data[0]
+        
+
+            
+        else:
+            return jsonify({"status": "error", "message": f"Saving '{form_type}' to database is not yet supported."}), 400
+
+    except Exception as e:
+        connection.rollback()
+        return jsonify({"status": "error", "message": f"Database error: {str(e)}"}), 500
+
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @app.route("/upload/<form_type>", methods=["POST"])
@@ -135,29 +187,15 @@ def upload(form_type):
             # ---------------- CNIC ----------------
             if form_type == "cnic":
                 yield json.dumps({"status": "progress", "message": "Analyzing structure..."}) + "\n"
-                result = extract_fields(cnic_file_input, "cnic")
-                yield json.dumps({"status": "success", "data": result.get("data")}) + "\n"
-                
-                if result.get("status") == "success":
-                    yield json.dumps({"status": "success", "data": result.get("data")}) + "\n"
-                else:
-                    yield json.dumps({"status": "error", "message": result.get("message", "Extraction failed")}) + "\n"
+                result_data = extract_cnic_fields(cnic_file_input, AZURE_ENDPOINT, AZURE_KEY)
+                yield json.dumps({"status": "success", "data": result_data}) + "\n"
 
             # ---------------- NAF ----------------
             elif form_type == "naf":
                 yield json.dumps({"status": "progress", "message": "Analyzing structure..."}) + "\n"
                 
-                from scripts.naf_extractor import identify_naf, extract_with_azure, build, extract_naf_fields
-                verified_naf = identify_naf(naf_filepath, AZURE_ENDPOINT, AZURE_KEY)
-                doc_type, confidence = verified_naf
-                if doc_type != "naf_detected" and confidence < 0.85:
-                    raise ValueError("Facing difficulty in identifying NAF document (!Use clear image). Extraction aborted.")
-                
-                yield json.dumps({"status": "progress", "message": "Extracting fields..."}) + "\n"
-                data = extract_with_azure(naf_filepath, AZURE_ENDPOINT, AZURE_KEY, NAF_MODEL_IDS)
-                
-                yield json.dumps({"status": "progress", "message": "Finalizing..."}) + "\n"
-                result_data = build(data)
+                from scripts.naf_extractor import extract_naf_fields
+                result_data = extract_naf_fields(naf_filepath, AZURE_ENDPOINT, AZURE_KEY, NAF_MODEL_IDS)
                 
                 yield json.dumps({"status": "success", "data": result_data}) + "\n"
 
@@ -165,6 +203,16 @@ def upload(form_type):
             yield json.dumps({"status": "error", "message": str(e)}) + "\n"
 
     return Response(generate(), mimetype='application/x-ndjson')
+
+
+@app.route("/testdb", methods=["GET"])
+def test_db_connection():
+    """Get a database connection."""
+    connection = create_connection()
+    if connection:
+        connection.close()
+        return jsonify({"status": "success", "message": "Database connection successful."}), 200
+    return jsonify({"status": "error", "message": "Failed to connect to the database."}), 500
 
 @app.route("/download-json", methods=["POST"])
 def download_json():

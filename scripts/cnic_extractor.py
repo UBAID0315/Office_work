@@ -141,8 +141,7 @@ def extract_cnic_fields(file_input, endpoint, key):
                 raise RuntimeError(f"Azure extraction failed: {str(e)}")
         else:
             raise ValueError(
-                f"Document rejected. Expected 'Cnic_doc' with confidence >= 0.85, "
-                f"but got '{doc_type}' with confidence {confidence:.2f}."
+                f"Don't try to be smart, this is not a CNIC document."
             )
 
     finally:

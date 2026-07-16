@@ -48,9 +48,12 @@
             <div class="result-icon" id="resultIcon">✦</div>
             <h2 id="resultTitle">Extraction Results</h2>
           </div>
-          <div style="display: flex; gap: 12px; align-items: center;">
+          <div style="display: flex; gap: 8px; align-items: center;">
             <button class="download-btn hidden" id="downloadBtn" onclick="downloadJSON()" title="Download JSON">
               <img src="{{ url_for('static', filename='images/download.png') }}" alt="Download" />
+            </button>
+            <button class="download-btn" onclick="push_to_DB()">
+              <img src="{{ url_for('static', filename='images/database.png') }}" alt="Save" title="Save to Database" />
             </button>
             <button class="close-btn" onclick="closeResults()" title="Close">
               &times;
@@ -261,9 +264,9 @@
         uploadAndProcess();
       }
 
-      // document.addEventListener('contextmenu', function(e) {
-      //   e.preventDefault();
-      // });
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+      });
       document
         .getElementById("fileInputNaf")
         .addEventListener("change", handleUpload);
@@ -271,8 +274,37 @@
         .getElementById("fileInputCnic")
         .addEventListener("change", handleUpload);
 
+// ==========================================================================
+// Pushing extracted data to the database and downloading JSON file functions
+// ==========================================================================
+      async function push_to_DB() {
+        if (!window.lastExtractedData) {
+          alert("No extracted data available to save.");
+          return;
+        }
+        try {
+          const response = await fetch(`/save-to-db/${currentForm}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(window.lastExtractedData)
+          });
+          if (response.ok) {
+            const result = await response.json();
+            alert(result.message || "Data saved to database successfully.");
+          } else {
+            alert('Failed to save data to database.');
+          }
+        } catch (error) {
+          alert(response.message || 'Error saving data to database.');
+        }
+      }
+
       async function downloadJSON() {
-        if (!window.lastExtractedData) return;
+        if (!window.lastExtractedData) 
+          alert("No extracted data available to download.");
+        return;
         try {
           const response = await fetch('/download-json', {
             method: 'POST',

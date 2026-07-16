@@ -378,17 +378,20 @@ def extract_with_azure(pdf_path, endpoint, key, model_ids):
 
 def extract_naf_fields(pdf_path, endpoint, key, model_ids):
 
-    try:
-        # This function is calling classfier to identify the document type and confidence
-        verified_naf = identify_naf(pdf_path, endpoint, key)
-        doc_type, confidence = verified_naf
+    # This function is calling classfier to identify the document type and confidence
+    verified_naf = identify_naf(pdf_path, endpoint, key)
+    doc_type, confidence = verified_naf
+    
+    if doc_type == "naf_detected" and confidence >= 0.85:
+        try:    
+            data = extract_with_azure(pdf_path, endpoint, key, model_ids)
+            result = build(data)
+            return result
         
-        if doc_type != "naf_detected" and confidence < 0.85:
-            raise ValueError(f"Facing difficulty in identifying NAF document (!Use clear image). Extraction aborted.")
+        except Exception as e:
+            raise RuntimeError(f"NAF extraction failed: {str(e)}")
 
-        data = extract_with_azure(pdf_path, endpoint, key, model_ids)
-        result = build(data)
-        return result
-
-    except Exception as e:
-        raise ValueError(f"Error identifying NAF document: {e}")
+    else:
+        raise ValueError(
+            f"Don't try to be smart, this is not a NAF document."
+        )

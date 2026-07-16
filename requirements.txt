@@ -4,3 +4,6 @@ azure-ai-documentintelligence
 azure-core
 pypdf
 Pillow
+sqlalchemy
+pymysql
+mysql-connector-python
