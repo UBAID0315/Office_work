@@ -294,17 +294,19 @@
             const result = await response.json();
             alert(result.message || "Data saved to database successfully.");
           } else {
-            alert('Failed to save data to database.');
+            const result = await response.json().catch(() => ({}));
+            alert(result.message || 'Failed to save data to database.');
           }
         } catch (error) {
-          alert(response.message || 'Error saving data to database.');
+          alert('Error saving data to database: ' + error.message);
         }
       }
 
       async function downloadJSON() {
-        if (!window.lastExtractedData) 
+        if (!window.lastExtractedData) {
           alert("No extracted data available to download.");
-        return;
+          return;
+        }
         try {
           const response = await fetch('/download-json', {
             method: 'POST',

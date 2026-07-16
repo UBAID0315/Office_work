@@ -1,0 +1,380 @@
+{
+  "form_title": "Adamjee Life Assurance Co. Ltd - Window Takaful Operations - Needs Analysis Form",
+  "family_takaful_need_analysis_of": {
+    "value": "Saif ali Khan",
+    "confidence": 0.333
+  },
+  "section_1_basic_information": {
+    "name": {
+      "value": "Saif ali Khan",
+      "confidence": 0.333
+    },
+    "address": {
+      "value": "O Sector 15-A/5 Bufferzone",
+      "confidence": 0.232
+    },
+    "telephone": {
+      "value": "0334- 2650979",
+      "confidence": 0.731
+    },
+    "email": {
+      "value": null,
+      "confidence": 0.004
+    },
+    "date_of_birth": {
+      "value": "11-08-1999",
+      "confidence": 0.708
+    },
+    "marital_status": {
+      "value": "Single",
+      "confidence": 0.907
+    },
+    "state_of_health": {
+      "selected": "Very Good",
+      "options": [
+        "Excellent",
+        "Very Good",
+        "Good",
+        "Moderate",
+        "Poor"
+      ],
+      "confidence": 0.375
+    },
+    "smoker": {
+      "selected": null,
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "confidence": null
+    }
+  },
+  "section_2_family_details": {
+    "number_of_dependents": {
+      "value": "5",
+      "confidence": 0.971
+    },
+    "dependents": [
+      {
+        "name": {
+          "value": "XYZ",
+          "confidence": 0.336
+        },
+        "relationship": {
+          "value": "Sister",
+          "confidence": 0.495
+        },
+        "age": {
+          "value": "29",
+          "confidence": 0.829
+        },
+        "state_of_health": {
+          "value": "Very Good",
+          "confidence": 0.596
+        },
+        "occupation": {
+          "value": "House with",
+          "confidence": 0.737
+        }
+      }
+    ],
+    "scope_for_family_expansion": {
+      "selected": null,
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "confidence": null
+    }
+  },
+  "section_3_employment_details": {
+    "occupation": {
+      "value": "Documentation Associate",
+      "confidence": 0.254
+    },
+    "length_of_service": {
+      "value": "10 year.",
+      "confidence": 0.846
+    },
+    "annual_income": {
+      "value": "2,000,000",
+      "confidence": 0.862
+    },
+    "normal_retirement_age": {
+      "value": "60 year.",
+      "confidence": 0.857
+    },
+    "covered_under_pension_scheme": {
+      "selected": null,
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "confidence": null
+    }
+  },
+  "section_4_financial_details": {
+    "value_of_savings_and_assets": {
+      "value": null,
+      "confidence": null
+    },
+    "liabilities_outstanding_loans": {
+      "value": null,
+      "confidence": null
+    },
+    "expected_inheritance": {
+      "value": null,
+      "confidence": null
+    }
+  },
+  "section_5_pension_details": {
+    "employers_scheme_insurance_takaful": {
+      "value": null,
+      "confidence": 0.614
+    },
+    "personal_premium_contribution": {
+      "value": null,
+      "confidence": 0.641
+    },
+    "retirement_age": {
+      "value": "60 years",
+      "confidence": 0.717
+    },
+    "anticipated_value": {
+      "value": null,
+      "confidence": 0.645
+    }
+  },
+  "section_6_future_saving_needs": {
+    "for_education_of_children": {
+      "value": "NO.",
+      "confidence": 0.868
+    },
+    "for_wedding": {
+      "value": "NO",
+      "confidence": 0.882
+    },
+    "for_house_purchase": {
+      "value": "Yes",
+      "confidence": 0.847
+    },
+    "others": {
+      "value": null,
+      "confidence": 0.365
+    }
+  },
+  "section_7_existing_plans": [],
+  "section_8_financial_priorities": {
+    "financial_security_event_of_death": {
+      "value": "2",
+      "confidence": 0.898
+    },
+    "financial_security_critical_illness": {
+      "value": "4",
+      "confidence": 0.842
+    },
+    "providing_retirement_income": {
+      "value": "5",
+      "confidence": 0.807
+    },
+    "planning_childrens_education": {
+      "value": "3",
+      "confidence": 0.777
+    },
+    "planning_childrens_wedding": {
+      "value": "6",
+      "confidence": 0.765
+    },
+    "building_capital_regular_saving": {
+      "value": "7",
+      "confidence": 0.843
+    },
+    "investing_capital_better_return": {
+      "value": "1 .",
+      "confidence": 0.545
+    },
+    "investment_horizon": {
+      "selected": null,
+      "options": [
+        "Short term (<1 yr)",
+        "Medium (1-5 yrs)",
+        "Medium-Long (5-10 yrs)",
+        "Long term (>10 yrs)"
+      ],
+      "confidence": null
+    },
+    "investment_knowledge_level": {
+      "selected": null,
+      "options": [
+        "Little knowledge",
+        "Some knowledge",
+        "Both knowledge & experienced"
+      ],
+      "confidence": null
+    },
+    "current_financial_position": {
+      "selected": null,
+      "options": [
+        "Very secure",
+        "Somewhat secure",
+        "Not sure",
+        "Likely worse"
+      ],
+      "confidence": null
+    }
+  },
+  "section_9_identified_takaful_needs": {
+    "life_insurance_death_maturity": {
+      "value": "1,000,000.",
+      "confidence": 0.393
+    },
+    "desirable_sum_covered": {
+      "value": null,
+      "confidence": 0.919
+    },
+    "health_family_takaful": {
+      "value": null,
+      "confidence": 0.919
+    },
+    "desirable_limit_coverage_per_annum": {
+      "value": null,
+      "confidence": 0.917
+    },
+    "saving_investment_planning": {
+      "value": null,
+      "confidence": 0.919
+    },
+    "desirable_returns_per_annum": {
+      "value": null,
+      "confidence": 0.919
+    },
+    "pension_planning": {
+      "value": null,
+      "confidence": 0.919
+    },
+    "desirable_pension_per_annum": {
+      "value": null,
+      "confidence": 0.919
+    }
+  },
+  "section_10_additional_information": {
+    "value": null,
+    "confidence": 0.859
+  },
+  "section_11_recommendation": {
+    "life_stage": {
+      "selected": null,
+      "options": [
+        "Childhood",
+        "Young unmarried",
+        "Young married",
+        "Young married w/ children",
+        "Married w/ older children",
+        "Post-family",
+        "Pre-retirement",
+        "Retirement"
+      ],
+      "confidence": null
+    },
+    "protection_needs": {
+      "selected": null,
+      "options": [
+        "Life & Health",
+        "Savings & Investment",
+        "Pension"
+      ],
+      "confidence": null
+    },
+    "appetite_for_risk": {
+      "selected": "Low",
+      "options": [
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "confidence": 0.181
+    },
+    "plan_recommended": {
+      "value": null,
+      "confidence": 0.883
+    },
+    "commitment_current_future_years": {
+      "value": null,
+      "confidence": 0.919
+    },
+    "all_risks_charges_explained": {
+      "selected": null,
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "confidence": null
+    },
+    "why_plan_most_suited": {
+      "value": null,
+      "confidence": 0.904
+    }
+  },
+  "sales_officer_certification": {
+    "statement": {
+      "value": "I/ We hereby certify that I/ we believe that the product(s) recommended by me/ us is suitable for the prospect, based on the information submitted by him/",
+      "confidence": 0.352
+    },
+    "date": {
+      "value": ":29-04-2026.",
+      "confidence": 0.429
+    },
+    "name": {
+      "value": null,
+      "confidence": 0.857
+    },
+    "signature": {
+      "value": "signed",
+      "confidence": 0.891
+    }
+  },
+  "prospect_acknowledgement": {
+    "statement": {
+      "value": "The above recommendation is based on the information provided by me. I have been explained about the features of the product and believe it would be suitable for me based on my Family Takaful needs and financial objectives.",
+      "confidence": 0.693
+    },
+    "acknowledgements": {
+      "a": {
+        "value": "(a) I am buying a takaful product that is linked to the performance of underlying assets under unit linked fund(s) and is not a pure investment or saving product such as collective investment schemes or mutual funds or bank deposits;",
+        "confidence": 0.395
+      },
+      "b": {
+        "value": "(b) This is a Regular Contribution product under which I will be required to pay contribution on every month/ quarter, or year for the contribution payment term selected by me. (only in case of regular contribution product);",
+        "confidence": 0.403
+      },
+      "c": {
+        "value": "(c) The investment risk under the membership shall be borne by me and cash value of the membership may go up and down according to performance of the underlying fund(s) in which I have opted to invest. The actual maturity or surrender values may be lower or higher than the projected figures.",
+        "confidence": 0.466
+      },
+      "d": {
+        "value": "(d) It is a long term takaful product, and in early years of the membership, the amount of cash values/ surrender values may be lower than the principal amount or cumulative amount of contribution paid by me. In case I cancel or surrender the membership in early years, I may not get the principal amount or cumulative amount of premium paid by me;",
+        "confidence": 0.2
+      },
+      "e": {
+        "value": "(e) The policy is subject to certain fees and charges, including contribution allocation charges, bid-offer spread, administration fee, investment management fee, and takaful charges (which are deducted to cover takaful risk under the membership);wo years of the policy, the surrender charges may apply on the policy which may result in lower or no cash surrender value;",
+        "confidence": 0.602
+      },
+      "f": {
+        "value": "(f) There is a free look period of fourteen (14) days from the receipt of membership documents for reading and reviewing the terms & conditions of the membership, and in case I am not satisfied with the product, I can cancel the product during this period for full refund of contribution subject to any medical charges;",
+        "confidence": 0.243
+      },
+      "g": {
+        "value": "I was shown a brief audio-visual clip by the takaful agent for guidance on filling applicaton form and key features of the product.",
+        "confidence": 0.2
+      }
+    },
+    "date": {
+      "value": null,
+      "confidence": 0.721
+    },
+    "signature": {
+      "value": "unsigned",
+      "confidence": 0.995
+    }
+  }
+}
