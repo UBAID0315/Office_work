@@ -29,24 +29,17 @@
           AI-powered document classification and extraction.
         </p>
 
-        <button id="btn-naf" onclick="chooseFile('naf')">
-          <span class="btn-text">Upload NAF Form (PDF)</span>
-        </button>
-
-        <button id="btn-proposal" onclick="chooseFile('proposal')">
-          <span class="btn-text">Upload Insurance / Takaful Form (PDF)</span>
-        </button>
-
-        <button id="btn-cnic" onclick="chooseFile('cnic')">
-          <span class="btn-text">Upload your CNIC (PDF or Images)</span>
+        <button id="btn-auto" onclick="chooseFile('auto')">
+          <span class="btn-text">Upload Document (CNIC / NAF)</span>
         </button>
       </div>
 
       <div class="right-panel hidden" id="resultPanel">
-        <div class="result-header">
+          <div class="result-header">
           <div class="result-title">
-            <div class="result-icon" id="resultIcon">✦</div>
-            <h2 id="resultTitle">Extraction Results</h2>
+            <button class="new-upload-btn" onclick="closeResults()" title="Back to upload">
+              &#8592;
+            </button>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
             <button class="download-btn hidden" id="downloadBtn" onclick="downloadJSON()" title="Download JSON">
@@ -65,29 +58,33 @@
       </div>
     </div>
 
-    <input type="file" id="fileInputNaf" accept=".pdf" hidden />
+    <!-- Expand Modal -->
+    <div id="expandModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+      <div style="background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <h3 id="expandModalTitle" style="margin-bottom: 16px; font-size: 12px; font-weight: bold; color: #64748b; letter-spacing: 0.05em;">EDITING FIELD</h3>
+        <textarea id="expandTextarea" style="width: 100%; min-height: 180px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#2563eb'"></textarea>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button onclick="closeExpandModal()" style="padding: 10px 20px; background: white; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Cancel</button>
+          <button id="saveExpandBtn" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 6px rgba(37,99,235,0.2); transition: background 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">Save Changes</button>
+        </div>
+      </div>
+    </div>
 
     <input
       type="file"
-      id="fileInputCnic"
+      id="fileInputAuto"
       accept=".pdf,image/png,image/jpeg,image/jpg"
       multiple
       hidden
     />
 
     <script>
-      let currentForm = "";
+      let currentForm = "auto";
 
       function chooseFile(type) {
         currentForm = type;
-        if (type === "cnic") {
-          document.getElementById("fileInputCnic").click();
-        }
-        if (type === "naf") {
-          document.getElementById("fileInputNaf").click();
-        }
-        if (type === "proposal") {
-          alert("Coming Soon!");
+        if (type === "auto") {
+          document.getElementById("fileInputAuto").click();
         }
       }
 
@@ -114,10 +111,12 @@
 
       function showResults() {
         document.getElementById("resultPanel").classList.remove("hidden");
+        document.querySelector(".left-panel").classList.add("hidden");
       }
 
       function closeResults() {
         document.getElementById("resultPanel").classList.add("hidden");
+        document.querySelector(".left-panel").classList.remove("hidden");
       }
 
       function handleUpload(event) {
@@ -128,42 +127,9 @@
         const data = new FormData();
         const statusDiv = document.getElementById("status");
 
-        if (currentForm === "cnic") {
-          if (files.length === 1) {
-            if (!files[0].name.toLowerCase().endsWith(".pdf")) {
-              alert("If uploading a single file for CNIC, it must be a PDF.");
-              event.target.value = "";
-              return;
-            }
-            data.append("pdf", files[0]);
-          } else if (files.length === 2) {
-            const isPdf =
-              files[0].name.toLowerCase().endsWith(".pdf") ||
-              files[1].name.toLowerCase().endsWith(".pdf");
-            if (isPdf) {
-              alert(
-                "If uploading two files, both must be images (Front and Back).",
-              );
-              event.target.value = "";
-              return;
-            }
-            data.append("front_image", files[0]);
-            data.append("back_image", files[1]);
-          } else {
-            alert(
-              "Please upload either a single PDF, or exactly two images (Front and Back side of CNIC).",
-            );
-            event.target.value = "";
-            return;
-          }
-        } else {
-          const file = files[0];
-          if (!file.name.toLowerCase().endsWith(".pdf")) {
-            alert("Please select a PDF file.");
-            event.target.value = "";
-            return;
-          }
-          data.append("pdf", file);
+        // Append all selected files to the form data
+        for (let i = 0; i < files.length; i++) {
+          data.append("files", files[i]);
         }
 
         showResults();
@@ -175,15 +141,9 @@
         </div>`;
 
         // Update result header
-        const formLabels = {
-          cnic: "CNIC",
-          naf: "NAF Form",
-          proposal: "Insurance Form",
-        };
-        document.getElementById("resultTitle").innerText =
-          `${formLabels[currentForm] || "Document"} Extraction Results`;
+        // document.getElementById("resultTitle").innerText = "Document Extraction Results";
 
-        setLoading(true, currentForm);
+        setLoading(true, "auto");
 
         async function uploadAndProcess() {
           try {
@@ -225,8 +185,12 @@
                         procTextEl.innerText = res.message;
                       }
                     } else if (res.status === "success") {
-                      setLoading(false, currentForm);
+                      setLoading(false, "auto");
                       statusDiv.style.color = "#111827";
+                      // Update form type based on classification
+                      if (res.classified_type) {
+                        currentForm = res.classified_type;
+                      }
                       window.lastExtractedData = res.data;
                       document.getElementById("downloadBtn").classList.remove("hidden");
                       statusDiv.innerHTML = renderFormResults(
@@ -234,7 +198,7 @@
                         currentForm,
                       );
                     } else if (res.status === "error") {
-                      setLoading(false, currentForm);
+                      setLoading(false, "auto");
                       statusDiv.style.color = "#b91c1c";
                       statusDiv.innerHTML = `<div class="error-state">
                                     <div class="error-icon">✕</div>
@@ -251,7 +215,7 @@
             await readStream();
           } catch (error) {
             console.error("Error during upload:", error);
-            setLoading(false, currentForm);
+            setLoading(false, "auto");
             statusDiv.style.color = "#b91c1c";
             statusDiv.innerHTML = `<div class="error-state">
                 <div class="error-icon">✕</div>
@@ -268,10 +232,7 @@
         e.preventDefault();
       });
       document
-        .getElementById("fileInputNaf")
-        .addEventListener("change", handleUpload);
-      document
-        .getElementById("fileInputCnic")
+        .getElementById("fileInputAuto")
         .addEventListener("change", handleUpload);
 
 // ==========================================================================
@@ -334,72 +295,111 @@
         }
       }
 
+      // ─── Expand Modal Logic ───────────────────────────────────────────────────────
+      let currentExpandInput = null;
+      let currentExpandPath = null;
+
+      function openExpandModal(inputEl, path, label) {
+        currentExpandInput = inputEl;
+        currentExpandPath = path;
+        document.getElementById('expandModalTitle').innerText = `EDITING ${label.toUpperCase()}`;
+        document.getElementById('expandTextarea').value = inputEl.value;
+        document.getElementById('expandModal').style.display = 'flex';
+        document.getElementById('expandTextarea').focus();
+      }
+
+      function closeExpandModal() {
+        document.getElementById('expandModal').style.display = 'none';
+        currentExpandInput = null;
+        currentExpandPath = null;
+      }
+
+      document.getElementById('saveExpandBtn').addEventListener('click', () => {
+        if (currentExpandInput && currentExpandPath) {
+          const newVal = document.getElementById('expandTextarea').value;
+          currentExpandInput.value = newVal;
+          updateCorrected(currentExpandPath, newVal);
+        }
+        closeExpandModal();
+      });
+
       // ─── Rendering Engine ─────────────────────────────────────────────────────────
 
       function renderFormResults(data, formType) {
-        // CNIC returns an array of flat document objects
         if (Array.isArray(data)) {
-          // Unwrap single-item array (CNIC case) — no index prefix
           let html = "";
           data.forEach((doc, idx) => {
             if (data.length > 1) {
               html += `<div class="section-header">Document ${idx + 1}</div>`;
             }
-            html += renderFlatFields(doc);
+            html += renderFlatFields(doc, `[${idx}]`);
           });
           return html;
         }
-
-        // NAF / complex nested dict — render with section cards
         return renderSections(data);
       }
 
-      function renderFlatFields(doc) {
+      function updateCorrected(path, value) {
+        // e.g. path = "section_1_basic_information.name"
+        let parts = path.split(/[\.\[\]]+/).filter(Boolean);
+        let obj = window.lastExtractedData;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (!obj[parts[i]]) obj[parts[i]] = {};
+          obj = obj[parts[i]];
+        }
+        let lastPart = parts[parts.length - 1];
+        if (!obj[lastPart]) obj[lastPart] = {};
+        if (!obj[lastPart].corrected) obj[lastPart].corrected = {};
+        
+        // If it has options, it might be a 'selected' field
+        if (obj[lastPart].azure && obj[lastPart].azure.options) {
+          obj[lastPart].corrected.selected = value;
+        } else {
+          obj[lastPart].corrected.value = value;
+        }
+      }
+
+      function setInitialCorrected(path, azureObj) {
+        let parts = path.split(/[\.\[\]]+/).filter(Boolean);
+        let obj = window.lastExtractedData;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (!obj[parts[i]]) obj[parts[i]] = {};
+          obj = obj[parts[i]];
+        }
+        let lastPart = parts[parts.length - 1];
+        if (!obj[lastPart]) obj[lastPart] = {};
+        if (!obj[lastPart].corrected) {
+           obj[lastPart].corrected = {};
+           if (azureObj && azureObj.options) {
+               obj[lastPart].corrected.selected = azureObj.selected || null;
+           } else {
+               obj[lastPart].corrected.value = azureObj ? azureObj.value : null;
+           }
+        }
+      }
+
+      function renderFlatFields(doc, basePath) {
         let rows = "";
         for (const [key, field] of Object.entries(doc)) {
-          if (
-            typeof field === "object" &&
-            field !== null &&
-            ("value" in field || "confidence" in field)
-          ) {
-            rows += fieldRow(formatName(key), field.value, field.confidence);
+          if (typeof field === "object" && field !== null && ("azure" in field || "value" in field)) {
+            rows += fieldRow(formatName(key), field, `${basePath}.${key}`);
           }
         }
-        return `<div class="result-card">
-                <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Extracted Value</th>
-                            <th>Confidence</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>`;
+        return getTableWrapper(rows);
       }
 
       function renderSections(data) {
         let html = "";
-
         if (data.form_title) {
           html += `<div class="section-header" style="font-size: 14px; border-bottom: 2px solid #6366f1; margin-bottom: 20px; color: #0f172a; text-transform: none;">${data.form_title}</div>`;
         }
 
         if (data.family_takaful_need_analysis_of) {
-          html += renderFieldGroup({
-            family_takaful_need_analysis_of:
-              data.family_takaful_need_analysis_of,
-          });
+          html += renderFieldGroup({ family_takaful_need_analysis_of: data.family_takaful_need_analysis_of }, "");
         }
 
         for (const [key, val] of Object.entries(data)) {
-          if (
-            key === "form_title" ||
-            key === "family_takaful_need_analysis_of"
-          ) {
-            continue;
-          }
+          if (key === "form_title" || key === "family_takaful_need_analysis_of") continue;
 
           const label = formatName(key);
           html += `<div class="section-header">${label}</div>`;
@@ -407,134 +407,74 @@
           if (Array.isArray(val)) {
             val.forEach((item, idx) => {
               html += `<div class="sub-section-label">Entry ${idx + 1}</div>`;
-              html += renderFieldGroup(item);
+              html += renderFieldGroup(item, `${key}[${idx}]`);
             });
           } else if (typeof val === "object" && val !== null) {
-            if ("value" in val || "confidence" in val || "selected" in val) {
-              // It is a single field under the root, not a group section
-              html += renderFieldGroup({ [key]: val });
+            if ("azure" in val || "value" in val || "options" in val) {
+              html += renderFieldGroup({ [key]: val }, "");
             } else {
-              html += renderFieldGroup(val);
+              html += renderFieldGroup(val, key);
             }
           }
         }
         return html;
       }
 
-      function renderFieldGroup(obj) {
+      function renderFieldGroup(obj, basePath) {
         if (!obj || typeof obj !== "object") return "";
         let rows = "";
         for (const [key, field] of Object.entries(obj)) {
           const label = formatName(key);
+          const currentPath = basePath ? `${basePath}.${key}` : key;
 
           if (field === null || field === undefined) {
-            rows += fieldRow(label, null, null);
+            rows += fieldRow(label, null, currentPath);
           } else if (typeof field === "object") {
-            if (field && "options" in field) {
-              const optsHtml = field.options
-                .map((opt) => {
-                  if (opt === field.selected) {
-                    return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#e0e7ff; border-radius:6px; font-weight:600; color:#2563eb;">✓ ${escapeHtml(opt)}</span>`;
-                  } else {
-                    return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#f1f5f9; border-radius:6px; color:#94a3b8;">☐ ${escapeHtml(opt)}</span>`;
-                  }
-                })
-                .join(" ");
-              rows += fieldRow(label, optsHtml, field.confidence, true);
-            } else if ("value" in field || "confidence" in field) {
-              rows += fieldRow(label, field.value, field.confidence);
+            if ("azure" in field || "glm" in field || "value" in field || "options" in field) {
+              rows += fieldRow(label, field, currentPath);
             } else if (Array.isArray(field)) {
-              // Nested array inside a section — expand each item into proper rows
               if (field.length > 1) {
-                rows += `<tr class="sub-group-header"><td colspan="3"><strong>${label}</strong></td></tr>`;
+                rows += `<tr class="sub-group-header"><td colspan="4"><strong>${label}</strong></td></tr>`;
               }
               field.forEach((item, i) => {
                 if (field.length > 1) {
-                  rows += `<tr class="sub-group-header"><td colspan="3" style="padding-left:24px; color:#6366f1;">Entry ${i + 1}</td></tr>`;
+                  rows += `<tr class="sub-group-header"><td colspan="4" style="padding-left:24px; color:#6366f1;">Entry ${i + 1}</td></tr>`;
                 }
                 if (typeof item === "object" && item !== null) {
                   for (const [sk, sv] of Object.entries(item)) {
-                    if (sv && typeof sv === "object" && "options" in sv) {
-                      const optsHtml = sv.options
-                        .map((opt) => {
-                          if (opt === sv.selected) {
-                            return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#e0e7ff; border-radius:6px; font-weight:600; color:#2563eb;">✓ ${escapeHtml(opt)}</span>`;
-                          } else {
-                            return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#f1f5f9; border-radius:6px; color:#94a3b8;">☐ ${escapeHtml(opt)}</span>`;
-                          }
-                        })
-                        .join(" ");
-                      rows += fieldRow(
-                        `&nbsp;&nbsp;${formatName(sk)}`,
-                        optsHtml,
-                        sv.confidence,
-                        true,
-                      );
-                    } else if (
-                      sv &&
-                      typeof sv === "object" &&
-                      ("value" in sv || "confidence" in sv)
-                    ) {
-                      rows += fieldRow(
-                        `&nbsp;&nbsp;${formatName(sk)}`,
-                        sv.value,
-                        sv.confidence,
-                      );
+                    if (sv && typeof sv === "object" && ("azure" in sv || "value" in sv || "options" in sv)) {
+                      rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, sv, `${currentPath}[${i}].${sk}`);
                     } else if (sv === null || typeof sv !== "object") {
-                      rows += fieldRow(
-                        `&nbsp;&nbsp;${formatName(sk)}`,
-                        sv,
-                        null,
-                      );
+                      rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, { azure: { value: sv } }, `${currentPath}[${i}].${sk}`);
                     }
                   }
                 }
               });
             } else {
-              // Deeper nested — recurse inline
-              rows += `<tr class="sub-group-header"><td colspan="3"><strong>${label}</strong></td></tr>`;
+              rows += `<tr class="sub-group-header"><td colspan="4"><strong>${label}</strong></td></tr>`;
               for (const [sk, sv] of Object.entries(field)) {
-                if (sv && typeof sv === "object" && "options" in sv) {
-                  const optsHtml = sv.options
-                    .map((opt) => {
-                      if (opt === sv.selected) {
-                        return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#e0e7ff; border-radius:6px; font-weight:600; color:#2563eb;">✓ ${escapeHtml(opt)}</span>`;
-                      } else {
-                        return `<span style="display:inline-block; margin:2px 4px; padding:2px 8px; background:#f1f5f9; border-radius:6px; color:#94a3b8;">☐ ${escapeHtml(opt)}</span>`;
-                      }
-                    })
-                    .join(" ");
-                  rows += fieldRow(
-                    `&nbsp;&nbsp;${formatName(sk)}`,
-                    optsHtml,
-                    sv.confidence,
-                    true,
-                  );
-                } else if (
-                  sv &&
-                  typeof sv === "object" &&
-                  ("value" in sv || "confidence" in sv)
-                ) {
-                  rows += fieldRow(
-                    `&nbsp;&nbsp;${formatName(sk)}`,
-                    sv.value,
-                    sv.confidence,
-                  );
+                if (sv && typeof sv === "object" && ("azure" in sv || "value" in sv || "options" in sv)) {
+                  rows += fieldRow(`&nbsp;&nbsp;${formatName(sk)}`, sv, `${currentPath}.${sk}`);
                 }
               }
             }
           } else {
-            rows += fieldRow(label, field, null);
+            rows += fieldRow(label, { azure: { value: field } }, currentPath);
           }
         }
         if (!rows) return "";
+        return getTableWrapper(rows);
+      }
+
+      function getTableWrapper(rows) {
         return `<div class="result-card">
                 <table class="result-table">
                     <thead>
                         <tr>
-                            <th>Field</th>
-                            <th>Extracted Value</th>
-                            <th>Confidence</th>
+                            <th style="width: 25%;">Field</th>
+                            <th style="width: 25%;">Azure AI</th>
+                            <th style="width: 25%;">GLM-OCR</th>
+                            <th style="width: 25%;">Human Corrected</th>
                         </tr>
                     </thead>
                     <tbody>${rows}</tbody>
@@ -544,50 +484,71 @@
 
       function escapeHtml(unsafe) {
         if (unsafe === null || unsafe === undefined) return "";
-        return unsafe
-          .toString()
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
+        return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
       }
 
-      function fieldRow(label, value, confidence, isHtml = false) {
-        let confHtml = "";
+      function getDisplayHtml(obj) {
+        if (!obj) return `<em class="empty-val">—</em>`;
+        if (obj.options) {
+          return obj.options.map((opt) => {
+            if (opt === obj.selected) {
+              return `<span class="opt-badge selected-opt">✓ ${escapeHtml(opt)}</span>`;
+            } else {
+              return `<span class="opt-badge">☐ ${escapeHtml(opt)}</span>`;
+            }
+          }).join(" ");
+        }
+        if (obj.value !== null && obj.value !== undefined && obj.value !== "") {
+          return escapeHtml(obj.value);
+        }
+        return `<em class="empty-val">—</em>`;
+      }
+
+      function getConfHtml(confidence) {
         if (confidence !== null && confidence !== undefined) {
           const pct = (confidence * 100).toFixed(1);
-          let cls =
-            confidence >= 0.8
-              ? "conf-high"
-              : confidence >= 0.5
-                ? "conf-med"
-                : "conf-low";
-          confHtml = `<span class="conf-badge ${cls}">${pct}%</span>`;
-        } else {
-          confHtml = `<span class="conf-badge conf-na">N/A</span>`;
+          let cls = confidence >= 0.8 ? "conf-high" : confidence >= 0.5 ? "conf-med" : "conf-low";
+          return `<span class="conf-badge ${cls}">${pct}%</span>`;
         }
+        return `<span class="conf-badge conf-na">N/A</span>`;
+      }
 
-        let displayVal = "";
-        if (value !== null && value !== undefined && value !== "") {
-          displayVal = isHtml ? value : escapeHtml(value);
+      function fieldRow(label, fieldObj, path) {
+        // Support legacy single-layer flat structure or new multi-layer structure
+        let azure = (fieldObj && fieldObj.azure) ? fieldObj.azure : (fieldObj && (fieldObj.value !== undefined || fieldObj.options) ? fieldObj : {});
+        let glm = (fieldObj && fieldObj.glm) ? fieldObj.glm : {};
+
+        let azureHtml = getDisplayHtml(azure);
+        let azureConf = getConfHtml(azure.confidence);
+
+        let glmHtml = getDisplayHtml(glm);
+        let glmConf = getConfHtml(glm.confidence);
+
+        let correctedHtml = "";
+        let defaultVal = azure.value !== undefined ? azure.value : (azure.selected !== undefined ? azure.selected : "");
+
+        setInitialCorrected(path, azure);
+
+        if (azure.options) {
+          let opts = azure.options.map(opt => `<option value="${escapeHtml(opt)}" ${opt === defaultVal ? 'selected' : ''}>${escapeHtml(opt)}</option>`).join("");
+          correctedHtml = `<select class="human-input" onchange="updateCorrected('${path}', this.value)">
+              <option value="">-- Select --</option>
+              ${opts}
+          </select>`;
         } else {
-          displayVal = `<em class="empty-val">—</em>`;
+          correctedHtml = `<input type="text" class="human-input" value="${escapeHtml(defaultVal)}" onchange="updateCorrected('${path}', this.value)" onclick="openExpandModal(this, '${path}', '${escapeHtml(label).replace(/'/g, "\\'")}')" style="cursor: pointer;" readonly placeholder="Click to edit..." />`;
         }
 
         return `<tr>
                 <td class="field-label">${label}</td>
-                <td class="field-value">${displayVal}</td>
-                <td class="field-conf">${confHtml}</td>
+                <td class="field-value-col"><div class="val">${azureHtml}</div><div class="conf-wrap">${azureConf}</div></td>
+                <td class="field-value-col"><div class="val">${glmHtml}</div><div class="conf-wrap">${glmConf}</div></td>
+                <td class="field-human-col">${correctedHtml}</td>
             </tr>`;
       }
 
       function formatName(key) {
-        return key
-          .toString()
-          .replace(/^section_\d+_/, "") // Remove section_1_, section_2_ prefixes
-          .replace(/_/g, " ")
-          .replace(/\b\w/g, (l) => l.toUpperCase());
+        return key.toString().replace(/^section_\d+_/, "").replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
       }
     </script>
   </body>

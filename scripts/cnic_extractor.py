@@ -27,27 +27,6 @@ def convert_images_to_pdf(image_paths, output_pdf_path):
         return True
     return False
 
-def identify_cnic(pdf_path, endpoint, key):
-    '''Identifies if the given PDF is a CNIC document using the Azure Document Intelligence classifier. 
-       Returns (doc_type, confidence) if a document is found, else (None, 0.0).'''
-    client = DocumentIntelligenceClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
-    )
-
-    with open(pdf_path, "rb") as f:
-        poller = client.begin_classify_document(
-            classifier_id="cnic_identifier_1.1",
-            body=f,
-        )
-
-    result = poller.result()
-
-    if result.documents:
-        doc = result.documents[0]
-        return doc.doc_type, doc.confidence
-    return None, 0.0
-
 def extract_cnic_fields(file_input, endpoint, key):
     '''Extracts fields from a CNIC document. The input can be a PDF path or a list of image paths.
        Returns a list of dictionaries containing the extracted fields.'''
@@ -73,76 +52,64 @@ def extract_cnic_fields(file_input, endpoint, key):
     else:
         raise ValueError("Invalid file input type.")
 
+    client = DocumentIntelligenceClient(
+        endpoint=endpoint,
+        credential=AzureKeyCredential(key)
+    )
+
     try:
-        # This function is calling classifier to identify the document type and confidence
-        doc_type, confidence = identify_cnic(pdf_to_process, endpoint, key)
-
-        if not doc_type:
-            raise ValueError("Classifier returned no result. The document could not be identified.")
-
-        if doc_type == "Cnic_doc" and confidence >= 0.85:
-            client = DocumentIntelligenceClient(
-                endpoint=endpoint,
-                credential=AzureKeyCredential(key)
+        with open(pdf_to_process, "rb") as f:
+            poller = client.begin_analyze_document(
+                model_id=MODEL_ID,
+                body=f
             )
 
-            try:
-                with open(pdf_to_process, "rb") as f:
-                    poller = client.begin_analyze_document(
-                        model_id=MODEL_ID,
-                        body=f
-                    )
+        result = poller.result()
+        
+        field = result.documents[0].fields
+        
+        temp_doc = [{
+            "Name": {
+                "value": field.get("Name", {}).get("content"),
+                "confidence": field.get("Name", {}).get("confidence")
+            },
+            "Father Name": {
+                "value": field.get("Father-Name", {}).get("content"),
+                "confidence": field.get("Father-Name", {}).get("confidence")
+            },
+            "CNIC Number": {
+                "value": field.get("Cnic", {}).get("content"),
+                "confidence": field.get("Cnic", {}).get("confidence")
+            },
+            "Date of Birth": {
+                "value": field.get("DoB", {}).get("content"),
+                "confidence": field.get("DoB", {}).get("confidence")
+            },
+            "Gender": {
+                "value": field.get("Gender", {}).get("content"),
+                "confidence": field.get("Gender", {}).get("confidence")
+            },
+            "Issue Date": {
+                "value": field.get("Cnic_issue_date", {}).get("content"),
+                "confidence": field.get("Cnic_issue_date", {}).get("confidence")
+            },
+            "Expiry Date": {
+                "value": field.get("Cnic_expiry_date", {}).get("content"),
+                "confidence": field.get("Cnic_expiry_date", {}).get("confidence")
+            },
+            "QR Code": {
+                "value": field.get("qrcode_below", {}).get("content"),
+                "confidence": field.get("qrcode_below", {}).get("confidence")
+            },
+            "CLI": {
+                "value": field.get("secret_code", {}).get("content"),
+                "confidence": field.get("secret_code", {}).get("confidence")
+            }
+        }]
+        return temp_doc
 
-                result = poller.result()
-                
-                field = result.documents[0].fields
-                
-                temp_doc = [{
-                    "Name": {
-                        "value": field.get("Name", {}).get("content"),
-                        "confidence": field.get("Name", {}).get("confidence")
-                    },
-                    "Father Name": {
-                        "value": field.get("Father-Name", {}).get("content"),
-                        "confidence": field.get("Father-Name", {}).get("confidence")
-                    },
-                    "CNIC Number": {
-                        "value": field.get("Cnic", {}).get("content"),
-                        "confidence": field.get("Cnic", {}).get("confidence")
-                    },
-                    "Date of Birth": {
-                        "value": field.get("DoB", {}).get("content"),
-                        "confidence": field.get("DoB", {}).get("confidence")
-                    },
-                    "Gender": {
-                        "value": field.get("Gender", {}).get("content"),
-                        "confidence": field.get("Gender", {}).get("confidence")
-                    },
-                    "Issue Date": {
-                        "value": field.get("Cnic_issue_date", {}).get("content"),
-                        "confidence": field.get("Cnic_issue_date", {}).get("confidence")
-                    },
-                    "Expiry Date": {
-                        "value": field.get("Cnic_expiry_date", {}).get("content"),
-                        "confidence": field.get("Cnic_expiry_date", {}).get("confidence")
-                    },
-                    "QR Code": {
-                        "value": field.get("qrcode_below", {}).get("content"),
-                        "confidence": field.get("qrcode_below", {}).get("confidence")
-                    },
-                    "CLI": {
-                        "value": field.get("secret_code", {}).get("content"),
-                        "confidence": field.get("secret_code", {}).get("confidence")
-                    }
-                }]
-                return temp_doc
-
-            except Exception as e:
-                raise RuntimeError(f"Azure extraction failed: {str(e)}")
-        else:
-            raise ValueError(
-                f"Don't try to be smart, this is not a CNIC document."
-            )
+    except Exception as e:
+        raise RuntimeError(f"Azure extraction failed: {str(e)}")
 
     finally:
         # Always clean up the temp PDF if it was created from images

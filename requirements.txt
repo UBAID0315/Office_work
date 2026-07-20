@@ -7,3 +7,4 @@ Pillow
 sqlalchemy
 pymysql
 mysql-connector-python
+flask-cors

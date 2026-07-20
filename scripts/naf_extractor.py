@@ -3,25 +3,6 @@ import os
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 
-def identify_naf(pdf_path, endpoint, key):
-    client = DocumentIntelligenceClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
-    )
-
-    with open(pdf_path, "rb") as f:
-        poller = client.begin_classify_document(
-            classifier_id="naf_identifier",
-            body=f,
-        )
-
-    result = poller.result()
-
-    if result.documents:
-        doc = result.documents[0]
-        return doc.doc_type, doc.confidence
-    return None, 0.0
-
 #==================
 # Helper Functions
 #==================
@@ -377,20 +358,10 @@ def extract_with_azure(pdf_path, endpoint, key, model_ids):
     return merged
 
 def extract_naf_fields(pdf_path, endpoint, key, model_ids):
-    # This function is calling classfier to identify the document type and confidence
-    verified_naf = identify_naf(pdf_path, endpoint, key)
-    doc_type, confidence = verified_naf
+    try:    
+        data = extract_with_azure(pdf_path, endpoint, key, model_ids)
+        result = build(data)
+        return result
     
-    if doc_type == "naf_detected" and confidence >= 0.85:
-        try:    
-            data = extract_with_azure(pdf_path, endpoint, key, model_ids)
-            result = build(data)
-            return result
-        
-        except Exception as e:
-            raise RuntimeError(f"NAF extraction failed: {str(e)}")
-
-    else:
-        raise ValueError(
-            f"Don't try to be smart, this is not a NAF document. (type={doc_type}, confidence={confidence:.2f})"
-        )
+    except Exception as e:
+        raise RuntimeError(f"NAF extraction failed: {str(e)}")

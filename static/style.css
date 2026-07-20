@@ -93,9 +93,34 @@ button:disabled {
     cursor: not-allowed;
 }
 
-#btn-naf      { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
-#btn-proposal { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 14px rgba(5,150,105,0.25); }
-#btn-cnic     { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 4px 14px rgba(124,58,237,0.25); }
+#btn-naf { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 14px rgba(245,158,11,0.25); }
+#btn-cnic { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 14px rgba(16,185,129,0.25); }
+#btn-proposal { background: linear-gradient(135deg, #ec4899, #be185d); box-shadow: 0 4px 14px rgba(236,72,153,0.25); }
+#btn-auto { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
+
+.new-upload-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.25);
+    margin-right: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.new-upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37,99,235,0.35);
+}
 .close-btn    { background: #f1f5f9; box-shadow: none; }
 
 /* ─── Loader (button spinner) ─────────────────────────── */
@@ -121,7 +146,7 @@ button:disabled {
     min-width: 0;
     background: white;
     border-radius: 24px;
-    padding: 28px 28px 36px;
+    padding: 28px 0px 36px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 50px rgba(15,23,42,0.07);
     animation: slideIn 0.35s ease;
 }
@@ -142,7 +167,7 @@ button:disabled {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    padding-bottom: 20px;
+    padding: 0 28px 20px 28px;
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -267,7 +292,7 @@ button:disabled {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #6366f1;
-    padding: 20px 4px 8px;
+    padding: 20px 28px 8px 28px;
     border-bottom: 2px solid #e0e7ff;
     margin-bottom: 12px;
 }
@@ -280,7 +305,7 @@ button:disabled {
     font-size: 12px;
     font-weight: 600;
     color: #94a3b8;
-    padding: 10px 4px 6px;
+    padding: 10px 28px 6px 28px;
     letter-spacing: 0.04em;
 }
 
@@ -289,7 +314,9 @@ button:disabled {
 .result-card {
     background: #fafbff;
     border: 1px solid #e8eaf6;
-    border-radius: 14px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
     overflow: hidden;
     margin-bottom: 16px;
 }
@@ -307,7 +334,7 @@ button:disabled {
 }
 
 .result-table th {
-    padding: 11px 16px;
+    padding: 11px 28px;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -333,27 +360,68 @@ button:disabled {
 }
 
 .field-label {
-    padding: 13px 16px;
+    padding: 13px 28px;
     font-weight: 600;
     color: #334155;
     width: 38%;
     vertical-align: top;
 }
 
-.field-value {
+.field-value-col {
     padding: 13px 16px;
-    color: #0f172a;
-    width: 46%;
     vertical-align: top;
     line-height: 1.5;
 }
 
-.field-conf {
-    padding: 13px 16px;
-    width: 16%;
-    vertical-align: top;
-    text-align: right;
+.field-value-col .val {
+    color: #0f172a;
+    margin-bottom: 6px;
 }
+
+.field-value-col .conf-wrap {
+    font-size: 11px;
+}
+
+.field-human-col {
+    padding: 10px 28px 10px 16px;
+    vertical-align: top;
+}
+
+.human-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #0f172a;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: white;
+}
+
+.human-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.opt-badge {
+    display: inline-block;
+    margin: 2px 4px 2px 0;
+    padding: 2px 8px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.selected-opt {
+    background: #e0e7ff;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+/* (Removed field-conf as it is replaced by conf-wrap above) */
 
 .empty-val {
     color: #cbd5e1;
@@ -405,9 +473,8 @@ button:disabled {
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    .field-label { width: 40%; }
-    .field-value { width: 40%; }
-    .field-conf  { width: 20%; }
+    .field-label { width: 100%; display: block; font-weight: bold; padding-bottom: 4px; }
+    .field-value-col, .field-human-col { display: block; width: 100%; padding-top: 4px; }
 }
 
 @media (max-width: 480px) {
@@ -416,8 +483,8 @@ button:disabled {
         display: none;
     }
 
-    .field-label { width: 45%; }
-    .field-value { width: 55%; }
+    .field-label { width: 100%; }
+    .field-value-col, .field-human-col { width: 100%; }
 }
 
 
