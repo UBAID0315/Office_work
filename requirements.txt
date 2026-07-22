@@ -1,4 +1,5 @@
 Flask
+flask-cors
 python-dotenv
 azure-ai-documentintelligence
 azure-core
@@ -7,4 +8,5 @@ Pillow
 sqlalchemy
 pymysql
 mysql-connector-python
-flask-cors
+ollama
+PyMuPDF
