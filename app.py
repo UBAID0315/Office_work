@@ -195,7 +195,8 @@ def save_to_db(form_type):
             cnic_fields = [
                 ("Name", "name"), ("Father Name", "father_name"), ("CNIC Number", "cnic"),
                 ("Date of Birth", "date_of_birth"), ("Gender", "gender"),
-                ("Issue Date", "issue_date"), ("Expiry Date", "expiry_date")
+                ("Issue Date", "issue_date"), ("Expiry Date", "expiry_date"),
+                ("CLI", "cli"), ("QR Code", "qr_code")
             ]
             for label, col_base in cnic_fields:
                 field_obj = raw_data.get(label, {})
@@ -395,10 +396,11 @@ GLM_JOBS = {}
 
 def _run_glm_background(job_id, pdf_path, doc_type="naf"):
     try:
-        from scripts.glm_extractor import extract_glm_naf_fields, extract_glm_cnic_fields
         if doc_type and "cnic" in str(doc_type).lower():
+            from scripts.glm_cnic_extractor import extract_glm_cnic_fields
             glm_raw = extract_glm_cnic_fields(pdf_path)
         else:
+            from scripts.glm_naf_extractor import extract_glm_naf_fields
             glm_raw = extract_glm_naf_fields(pdf_path)
 
         GLM_JOBS[job_id] = {

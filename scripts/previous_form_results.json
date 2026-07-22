@@ -1,0 +1,357 @@
+
+{
+  "form_title": {
+    "value": "Adamjee Life Assurance Co. Ltd - Window Takaful Operations - Needs Analysis Form",
+    "confidence": 1.0
+  },
+  "family_takaful_need_analysis_of": {
+    "value": "Family Takaful Need Analysis of Hameed Lateef",
+    "confidence": 0.0
+  },
+  "section_1_basic_information": {
+    "name": {
+      "value": "Saif ali Cham",
+      "confidence": 0.0
+    },
+    "address": {
+      "value": "Sector 15-A/5 Bufferzone",
+      "confidence": 0.0
+    },
+    "telephone": {
+      "value": "0334-2650979",
+      "confidence": 0.0
+    },
+    "email": {
+      "value": "hameed@gmail.com",
+      "confidence": 0.0
+    },
+    "date_of_birth": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "marital_status": {
+      "selected": "Single",
+      "options": [
+        "Single",
+        "Married",
+        "Widowed",
+        "Divorced"
+      ]
+    },
+    "state_of_health": {
+      "selected": "",
+      "options": [
+        "Excellent",
+        "Very Good",
+        "Good",
+        "Moderate",
+        "Poor"
+      ]
+    },
+    "smoker": {
+      "selected": "",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    }
+  },
+  "section_2_family_details": {
+    "number_of_dependents": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "dependents": [],
+    "scope_for_family_expansion": {
+      "selected": "",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    }
+  },
+  "section_3_employment_details": {
+    "occupation": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "length_of_service": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "annual_income": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "normal_retirement_age": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "covered_under_pension_scheme": {
+      "selected": "",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    }
+  },
+  "section_4_financial_details": {
+    "value_of_savings_and_assets": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "liabilities_outstanding_loans": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "expected_inheritance": {
+      "value": "",
+      "confidence": 0.0
+    }
+  },
+  "section_5_pension_details": {
+    "employers_scheme_insurance_takaful": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "personal_premium_contribution": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "retirement_age": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "anticipated_value": {
+      "value": "",
+      "confidence": 0.0
+    }
+  },
+  "section_6_future_saving_needs": {
+    "for_education_of_children": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "for_wedding": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "for_house_purchase": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "others": {
+      "value": "",
+      "confidence": 0.0
+    }
+  },
+  "section_7_existing_plans": [],
+  "section_8_financial_priorities": {
+    "financial_security_event_of_death": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "financial_security_critical_illness": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "providing_retirement_income": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "planning_childrens_education": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "planning_childrens_wedding": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "building_capital_regular_saving": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "investing_capital_better_return": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "investment_horizon": {
+      "selected": "",
+      "options": [
+        "Short term (<1 yr)",
+        "Medium term (1-5 yrs)",
+        "Long term (>5 yrs)"
+      ]
+    },
+    "investment_knowledge_level": {
+      "selected": "",
+      "options": [
+        "Little knowledge",
+        "Some knowledge",
+        "Both knowledge & experienced"
+      ]
+    },
+    "current_financial_position": {
+      "selected": "",
+      "options": [
+        "Very secure",
+        "Somewhat secure",
+        "Not sure",
+        "Likely worse"
+      ]
+    }
+  },
+  "section_9_identified_takaful_needs": {
+    "life_insurance_death_maturity": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "desirable_sum_covered": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "health_family_takaful": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "desirable_limit_coverage_per_annum": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "saving_investment_planning": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "desirable_returns_per_annum": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "pension_planning": {
+      "selected": "",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    "desirable_pension_per_annum": {
+      "value": "",
+      "confidence": 0.0
+    }
+  },
+  "section_10_additional_information": {
+    "value": "",
+    "confidence": 0.0
+  },
+  "section_11_recommendation": {
+    "life_stage": {
+      "selected": "",
+      "options": [
+        "Childhood",
+        "Young unmarried",
+        "Young married",
+        "Young married w/ children",
+        "Married w/ older children",
+        "Post-family",
+        "Pre-retirement",
+        "Retirement"
+      ]
+    },
+    "protection_needs": {
+      "selected": "",
+      "options": [
+        "Life & Health",
+        "Savings & Investment",
+        "Pension"
+      ]
+    },
+    "appetite_for_risk": {
+      "selected": "",
+      "options": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    },
+    "plan_recommended": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "commitment_current_future_years": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "all_risks_charges_explained": {
+      "selected": "",
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    "why_plan_most_suited": {
+      "value": "",
+      "confidence": 0.0
+    }
+  },
+  "sales_officer_certification": {
+    "statement": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "date": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "name": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "signature": {
+      "value": "",
+      "confidence": 0.0
+    }
+  },
+  "prospect_acknowledgement": {
+    "statement": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "acknowledgements": {
+      "a": {
+        "value": "",
+        "confidence": 0.0
+      },
+      "b": {
+        "value": "",
+        "confidence": 0.0
+      },
+      "c": {
+        "value": "",
+        "confidence": 0.0
+      },
+      "d": {
+        "value": "",
+        "confidence": 0.0
+      },
+      "e": {
+        "value": "",
+        "confidence": 0.0
+      },
+      "f": {
+        "value": "",
+        "confidence": 0.0
+      },
+      "g": {
+        "value": "",
+        "confidence": 0.0
+      }
+    },
+    "date": {
+      "value": "",
+      "confidence": 0.0
+    },
+    "signature": {
+      "value": "",
+      "confidence": 0.0
+    }
+  }
+}
