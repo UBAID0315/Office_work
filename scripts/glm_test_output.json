@@ -1,9 +1,21 @@
 {
-  "Name": "Muhammad Waqas Nadeem",
-  "Father Name": "Muhammad Arshad Nadeem",
-  "CNIC Number": "34401-1389112-7",
-  "Date of Birth": "23.09.1991",
-  "Gender": "M",
-  "Issue Date": "27.06.2018",
-  "Expiry Date": "27.06.2028"
+  "takaful_of": "Syed Bilal Hussain",
+  "name": "Bilal Hussain",
+  "address": "House # 91, Block C, Goulsham-e-Iqbal Karachi",
+  "telephone": "+92-321-5678901",
+  "email": "bilal.hussain@gmail.com",
+  "date_of_birth": "20-11-1985",
+  "marital_status": "Married",
+  "state_of_health": "Excellent",
+  "smoker": "Yes",
+  "number_of_dependents": "04",
+  "scope_for_family_expansion": "No",
+  "occupation": "Doctor",
+  "length_of_service": "14 years",
+  "annual_income": "4,200,000",
+  "normal_retirement_age": "60 years",
+  "covered_under_pension_scheme": "Yes",
+  "value_of_savings_and_assets": "28,000,000",
+  "liabilities_outstanding_loans": "3,800,000",
+  "expected_inheritance": "6,000,000"
 }

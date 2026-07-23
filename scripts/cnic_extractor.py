@@ -96,14 +96,6 @@ def extract_cnic_fields(file_input, endpoint, key):
             "Expiry Date": {
                 "value": field.get("Cnic_expiry_date", {}).get("content"),
                 "confidence": field.get("Cnic_expiry_date", {}).get("confidence")
-            },
-            "QR Code": {
-                "value": field.get("qrcode_below", {}).get("content"),
-                "confidence": field.get("qrcode_below", {}).get("confidence")
-            },
-            "CLI": {
-                "value": field.get("secret_code", {}).get("content"),
-                "confidence": field.get("secret_code", {}).get("confidence")
             }
         }]
         return temp_doc

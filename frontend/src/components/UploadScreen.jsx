@@ -63,24 +63,24 @@ export function UploadScreen({ onUpload, appState, progressMessage, errorMessage
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`w-full max-w-[95%] sm:max-w-md md:max-w-lg lg:max-w-xl p-6 sm:p-8 pt-10 sm:pt-12 shrink-0 bg-surface rounded-3xl shadow-xl shadow-black/5 flex flex-col items-center text-center border-2 transition-all duration-300 ${
-          isDragging ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-transparent'
+        className={`w-full max-w-[95%] sm:max-w-xl md:max-w-2xl p-8 sm:p-12 pt-12 sm:pt-16 shrink-0 bg-surface/80 backdrop-blur-2xl rounded-[2rem] shadow-2xl flex flex-col items-center text-center border transition-all duration-500 ${
+          isDragging ? 'border-primary bg-primary/5 scale-[1.02] shadow-primary/20' : 'border-outline/50 hover:border-outline shadow-black/50'
         }`}
       >
-        <div className="relative mb-4 sm:mb-6">
-          <img
-            src="/images/logo.jpg"
-            alt="Logo"
-            className="w-24 h-24 sm:w-32 sm:h-32 md:w-35 md:h-35 rounded-full object-cover ring-4 ring-primary/10"
-            onError={(e) => (e.target.style.display = 'none')}
-          />
+        <div className="relative mb-6 sm:mb-8">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center ring-1 ring-primary/30 relative overflow-hidden">
+            <FileText size={40} className="text-primary" />
+            {isProcessing && (
+              <div className="absolute inset-0 bg-primary/20 animate-scan border-b-2 border-primary shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
+            )}
+          </div>
         </div>
 
-        <h1 className="text-xl sm:text-2xl font-bold text-textMain mb-2 leading-tight">
-          Document Intelligence Extractor
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-textMain mb-3 leading-tight tracking-tight">
+          Document Intelligence Engine
         </h1>
-        <p className="text-xs sm:text-sm text-textMuted mb-6 sm:mb-8 leading-relaxed px-2">
-          AI-powered document classification and extraction.
+        <p className="text-sm sm:text-lg text-textMuted mb-8 sm:mb-10 leading-relaxed max-w-[80%] font-medium">
+          Secure AI classification and extraction matrix.
         </p>
 
         <input
@@ -90,6 +90,7 @@ export function UploadScreen({ onUpload, appState, progressMessage, errorMessage
           className="hidden"
           multiple
           accept=".pdf,image/png,image/jpeg,image/jpg"
+          aria-label="Upload document file"
         />
 
         <div
@@ -100,21 +101,29 @@ export function UploadScreen({ onUpload, appState, progressMessage, errorMessage
               fileInputRef.current?.click();
             }
           }}
-          className={`w-full rounded-2xl border-2 border-dashed p-6 sm:p-8 md:p-10 cursor-pointer transition-all duration-300 flex flex-col items-center gap-2 sm:gap-3 ${
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              if (isError) onReset();
+              else if (!disabled) fileInputRef.current?.click();
+            }
+          }}
+          className={`w-full rounded-2xl border border-dashed p-8 sm:p-12 cursor-pointer transition-all duration-500 flex flex-col items-center gap-4 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
             disabled ? 'cursor-not-allowed opacity-60' : 'hover:border-primary hover:bg-primary/5'
-          } ${isDragging ? 'border-primary bg-primary/10' : 'border-gray-300'} ${
-            isError ? 'border-red-300 bg-red-50/50 hover:bg-red-50 hover:border-red-400' : ''
+          } ${isDragging ? 'border-primary bg-primary/10 shadow-[inset_0_0_30px_rgba(16,185,129,0.1)]' : 'border-outline'} ${
+            isError ? 'border-red-500/50 bg-red-950/20 hover:bg-red-950/30' : ''
           }`}
         >
           {isProcessing && (
             <>
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center bg-primary/10 text-primary">
-                <Loader2 size={24} className="animate-spin text-primary" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-primary/10 text-primary">
+                <Loader2 size={32} className="animate-spin text-primary" />
               </div>
-              <p className="text-sm font-semibold text-textMain mt-2">
-                Processing Document
+              <p className="text-base sm:text-xl font-semibold text-textMain mt-3 font-display tracking-wide">
+                Processing Document…
               </p>
-              <p className="text-xs text-textMuted text-center max-w-[85%] leading-relaxed mt-1">
+              <p className="text-sm sm:text-base text-primary text-center max-w-[85%] mt-1 font-medium">
                 {progressMessage}
               </p>
             </>
@@ -122,13 +131,13 @@ export function UploadScreen({ onUpload, appState, progressMessage, errorMessage
 
           {isError && (
             <>
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center bg-red-100 text-red-600">
-                <AlertCircle size={24} />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-red-500/10 text-red-500">
+                <AlertCircle size={32} />
               </div>
-              <p className="text-sm font-semibold text-red-600 mt-2">
+              <p className="text-base sm:text-xl font-semibold text-red-400 mt-3 font-display">
                 Extraction Failed
               </p>
-              <p className="text-xs text-red-500/80 text-center max-w-[85%] leading-relaxed mt-1">
+              <p className="text-sm sm:text-base text-red-400/80 text-center max-w-[85%] mt-1">
                 {errorMessage}
               </p>
               <button
@@ -136,7 +145,7 @@ export function UploadScreen({ onUpload, appState, progressMessage, errorMessage
                   e.stopPropagation();
                   onReset();
                 }}
-                className="mt-3 px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                className="mt-5 px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl shadow-lg transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:ring-red-500 focus-visible:outline-none cursor-pointer"
               >
                 Try Again
               </button>
@@ -146,22 +155,26 @@ export function UploadScreen({ onUpload, appState, progressMessage, errorMessage
           {!isProcessing && !isError && (
             <>
               <div
-                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  isDragging ? 'bg-primary/10 text-primary scale-110' : 'bg-primary/10 text-black'
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                  isDragging ? 'bg-primary/20 text-primary scale-110 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-surface border border-outline text-textMuted shadow-md'
                 }`}
               >
                 {isDragging ? (
-                  <FileText size={24} className="animate-bounce" />
+                  <UploadCloud size={32} className="text-primary" />
                 ) : (
-                  <UploadCloud size={24} className="sm:w-6 sm:h-6" />
+                  <UploadCloud size={32} className="text-textMuted transition-colors group-hover:text-primary" />
                 )}
               </div>
 
-              <p className="text-sm font-medium text-textMain">
-                {isDragging ? 'Drop it like it’s hot 🔥' : 'Drag & drop a file here'}
+              <p className="text-base sm:text-xl font-semibold text-textMain font-display tracking-wide">
+                {isDragging ? 'Initiate sequence…' : 'Drag & drop securely here'}
               </p>
-              <p className="text-xs text-textMuted">or click to browse</p>
-              <p className="text-[10px] sm:text-[11px] text-textMuted/70 mt-1">PDF, PNG, JPG supported</p>
+              <p className="text-sm sm:text-base text-textMuted font-medium">or click to manually browse</p>
+              <div className="flex gap-2 mt-2">
+                {['PDF', 'PNG', 'JPG'].map(ext => (
+                  <span key={ext} className="px-2 py-1 rounded bg-surface border border-outline text-[10px] sm:text-xs font-bold text-textMuted tracking-wider">{ext}</span>
+                ))}
+              </div>
             </>
           )}
         </div>

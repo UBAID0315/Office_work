@@ -16,7 +16,8 @@ export default {
         textMuted: '#6b7280',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Poppins', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
       }
     },
   },

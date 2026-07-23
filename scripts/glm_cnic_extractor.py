@@ -130,7 +130,14 @@ def extract_glm_cnic_fields(image_or_pdf_path: str) -> dict:
     if isinstance(parsed_json, dict):
         for json_k, ui_label in cnic_map.items():
             val = parsed_json.get(json_k, "unreadable")
-            result[ui_label] = val.strip() if isinstance(val, str) else val
+            val_str = val.strip() if isinstance(val, str) else val
+            result[ui_label] = val_str
+            result[json_k] = val_str
+            result[json_k.replace("_", " ")] = val_str
+            result[json_k.replace("_", " ").title()] = val_str
+            if json_k == "identity_number":
+                result["cnic"] = val_str
+                result["CNIC Number"] = val_str
     else:
         for _, ui_label in cnic_map.items():
             result[ui_label] = "unreadable"

@@ -1,17 +1,70 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins/Poppins_Complete/Fonts/WEB/fonts/Poppins-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins/Poppins_Complete/Fonts/WEB/fonts/Poppins-VariableItalic.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: italic;
+}
+:root {
+  --background: #F8FAFC;  /* Very soft blue-grey background */
+  --surface: #FFFFFF;     /* Pure white card surface */
+  --primary: #10B981;     /* Emerald 500 */
+  --primary-hover: #059669; /* Emerald 600 */
+  --outline: #E2E8F0;     /* Soft slate border */
+  --text-main: #334155;   /* Slate 700 - softer than stark black */
+  --text-muted: #64748B;  /* Slate 500 */
+}
+
+.dark {
+  --background: #0F172A;  
+  --surface: #1E293B;     
+  --primary: #34D399;     /* Emerald 400 for dark mode */
+  --primary-hover: #10B981; /* Emerald 500 */
+  --outline: #334155;     
+  --text-main: #F1F5F9;   /* Slate 100 */
+  --text-muted: #94A3B8;  /* Slate 400 */
+}
+
 @theme {
-  --color-background: #f8f9ff;
-  --color-surface: #ffffff;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-outline: #e5e7eb;
-  --color-textMain: #111827;
-  --color-textMuted: #6b7280;
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-outline: var(--outline);
+  --color-textMain: var(--text-main);
+  --color-textMuted: var(--text-muted);
 }
 
 @layer base {
   body {
-    @apply bg-background text-textMain antialiased;
+    @apply bg-background text-textMain antialiased selection:bg-primary/30 selection:text-primary transition-colors duration-300;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Poppins', sans-serif;
   }
 }
+
+/* Custom CSS scanning animation for upload screen */
+@layer utilities {
+  .animate-scan {
+    animation: scan 2.5s ease-in-out infinite;
+  }
+}
+
+@keyframes scan {
+  0%, 100% { transform: translateY(-100%); opacity: 0; }
+  50% { transform: translateY(100%); opacity: 1; }
+}
+
